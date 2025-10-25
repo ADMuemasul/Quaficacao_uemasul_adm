@@ -1,0 +1,32 @@
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# Backend (não incluído neste repositório)
+*.py
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Uploads
+uploads/
+
+# Banco de dados
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+
+# Ambiente virtual
+venv/
+env/
+ENV/
+
+# Configurações locais
+.env
+config.local.py
