@@ -1,0 +1,947 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Analytics - Qualificação de Jovens UEMASUL{% endblock %}
+
+{% block content %}
+<section class="dashboard-section">
+  <div class="container-fluid">
+    <!-- Header do Dashboard -->
+    <div class="dashboard-header">
+      <div class="row align-items-center mb-4">
+        <div class="col-md-8">
+          <h1 class="dashboard-title">
+            <i class="fas fa-chart-bar me-3"></i>Dashboard Analytics
+          </h1>
+          <p class="dashboard-subtitle">Qualificação de Jovens para o Mercado de Trabalho - UEMASUL</p>
+        </div>
+        <div class="col-md-4 text-end">
+          <div class="dashboard-actions">
+            <button class="btn btn-outline-primary me-2" onclick="refreshDashboard()">
+              <i class="fas fa-sync-alt me-2"></i>Atualizar
+            </button>
+            <a href="{{ url_for('admin') }}" class="btn btn-primary">
+              <i class="fas fa-table me-2"></i>Ver Tabela
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtros Ativos -->
+    <div class="filters-section mb-4" id="filtersSection" style="display: none;">
+      <div class="filters-card">
+        <div class="filters-header">
+          <h5 class="filters-title">
+            <i class="fas fa-filter me-2"></i>Filtros Ativos
+          </h5>
+          <button class="btn btn-sm btn-outline-danger" onclick="clearAllFilters()">
+            <i class="fas fa-times me-1"></i>Limpar Todos
+          </button>
+        </div>
+        <div class="filters-content" id="filtersContent">
+          <!-- Filtros ativos serão inseridos aqui -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Cards de Métricas Principais -->
+    <div class="metrics-section mb-5">
+      <div class="row g-4" id="metricsCards">
+        <!-- Cards serão carregados via JavaScript -->
+      </div>
+    </div>
+
+    <!-- Grid de Gráficos -->
+    <div class="charts-section">
+      <div class="row g-4">
+        
+        <!-- Distribuição por Escolaridade -->
+        <div class="col-lg-6 col-xl-4">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h5 class="chart-title">
+                <i class="fas fa-graduation-cap me-2 text-primary"></i>
+                Distribuição por Escolaridade
+              </h5>
+            </div>
+            <div class="chart-container">
+              <canvas id="chartEscolaridade"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Faixa Etária -->
+        <div class="col-lg-6 col-xl-4">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h5 class="chart-title">
+                <i class="fas fa-users me-2 text-success"></i>
+                Distribuição por Faixa Etária
+              </h5>
+            </div>
+            <div class="chart-container">
+              <canvas id="chartIdade"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Nível de Proficiência -->
+        <div class="col-lg-6 col-xl-4">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h5 class="chart-title">
+                <i class="fas fa-chart-line me-2 text-warning"></i>
+                Nível de Proficiência em Informática
+              </h5>
+            </div>
+            <div class="chart-container">
+              <canvas id="chartProficiencia"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Curso Anterior -->
+        <div class="col-lg-6 col-xl-4">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h5 class="chart-title">
+                <i class="fas fa-certificate me-2 text-info"></i>
+                Experiência Anterior em Informática
+              </h5>
+            </div>
+            <div class="chart-container">
+              <canvas id="chartCursoAnterior"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Cidades -->
+        <div class="col-lg-6 col-xl-4">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h5 class="chart-title">
+                <i class="fas fa-map-marker-alt me-2 text-danger"></i>
+                Top Cidades dos Candidatos
+              </h5>
+            </div>
+            <div class="chart-container">
+              <canvas id="chartCidades"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timeline de Inscrições -->
+        <div class="col-lg-6 col-xl-4">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h5 class="chart-title">
+                <i class="fas fa-calendar me-2 text-secondary"></i>
+                Timeline de Inscrições
+              </h5>
+            </div>
+            <div class="chart-container">
+              <canvas id="chartTimeline"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Status das Inscrições -->
+        <div class="col-lg-6 col-xl-6">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h5 class="chart-title">
+                <i class="fas fa-tasks me-2 text-purple"></i>
+                Status das Inscrições
+              </h5>
+            </div>
+            <div class="chart-container">
+              <canvas id="chartStatus"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Documentos Enviados -->
+        <div class="col-lg-6 col-xl-6">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h5 class="chart-title">
+                <i class="fas fa-file-upload me-2 text-orange"></i>
+                Documentos Enviados
+              </h5>
+            </div>
+            <div class="chart-container">
+              <canvas id="chartDocumentos"></canvas>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Insights Section -->
+    <div class="insights-section mt-5">
+      <div class="row">
+        <div class="col-12">
+          <div class="insights-card">
+            <div class="insights-header">
+              <h4 class="insights-title">
+                <i class="fas fa-lightbulb me-2 text-warning"></i>
+                Insights & Análises
+              </h4>
+            </div>
+            <div class="insights-content" id="insightsContent">
+              <!-- Insights serão carregados via JavaScript -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
+<script>
+// Configurações globais do Chart.js
+Chart.defaults.font.family = "'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.color = '#6c757d';
+
+// Paleta de cores UEMASUL
+const colors = {
+  primary: '#003366',
+  secondary: '#FFD700',
+  success: '#28a745',
+  info: '#17a2b8',
+  warning: '#ffc107',
+  danger: '#dc3545',
+  light: '#f8f9fa',
+  dark: '#343a40',
+  purple: '#6f42c1',
+  orange: '#fd7e14'
+};
+
+// Gradientes para gráficos
+const gradients = {};
+
+// Variáveis globais para armazenar as instâncias dos gráficos
+const charts = {};
+
+// Sistema de filtros globais
+let activeFilters = {};
+
+// Função para construir URL com filtros
+function buildFilteredUrl(baseUrl) {
+  const params = new URLSearchParams();
+  
+  for (const [key, value] of Object.entries(activeFilters)) {
+    params.append(key, value);
+  }
+  
+  return baseUrl + (params.toString() ? '?' + params.toString() : '');
+}
+
+// Função para aplicar filtro
+function applyFilter(filterType, filterValue) {
+  console.log(`🔍 Aplicando filtro: ${filterType} = ${filterValue}`);
+  
+  // Adicionar ou atualizar filtro
+  activeFilters[filterType] = filterValue;
+  
+  // Atualizar interface de filtros
+  updateFiltersUI();
+  
+  // Recarregar todos os dados
+  refreshDashboard();
+}
+
+// Função para remover filtro
+function removeFilter(filterType) {
+  console.log(`❌ Removendo filtro: ${filterType}`);
+  
+  delete activeFilters[filterType];
+  
+  // Atualizar interface de filtros
+  updateFiltersUI();
+  
+  // Recarregar todos os dados
+  refreshDashboard();
+}
+
+// Função para limpar todos os filtros
+function clearAllFilters() {
+  console.log('🗑️ Limpando todos os filtros');
+  
+  activeFilters = {};
+  
+  // Atualizar interface de filtros
+  updateFiltersUI();
+  
+  // Recarregar todos os dados
+  refreshDashboard();
+}
+
+// Função para atualizar interface de filtros
+function updateFiltersUI() {
+  const filtersSection = document.getElementById('filtersSection');
+  const filtersContent = document.getElementById('filtersContent');
+  
+  if (Object.keys(activeFilters).length === 0) {
+    filtersSection.style.display = 'none';
+    return;
+  }
+  
+  filtersSection.style.display = 'block';
+  
+  let filtersHTML = '';
+  
+  for (const [filterType, filterValue] of Object.entries(activeFilters)) {
+    const displayName = getFilterDisplayName(filterType, filterValue);
+    filtersHTML += `
+      <div class="filter-badge">
+        <span class="filter-label">${displayName}</span>
+        <button class="filter-remove" onclick="removeFilter('${filterType}')" title="Remover filtro">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    `;
+  }
+  
+  filtersContent.innerHTML = filtersHTML;
+}
+
+// Função para obter nome amigável do filtro
+function getFilterDisplayName(filterType, filterValue) {
+  const displayNames = {
+    'faixa_idade': `Idade: ${filterValue}`,
+    'escolaridade': `Escolaridade: ${filterValue}`,
+    'status': `Status: ${filterValue}`,
+    'curso_anterior': `Experiência: ${filterValue === 'sim' ? 'Sim' : 'Não'}`
+  };
+  
+  return displayNames[filterType] || `${filterType}: ${filterValue}`;
+}
+
+// Função para criar gradientes
+function createGradient(ctx, color1, color2) {
+  const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+  gradient.addColorStop(0, color1);
+  gradient.addColorStop(1, color2);
+  return gradient;
+}
+
+// Função para carregar métricas principais
+async function loadMetrics() {
+  try {
+    const url = buildFilteredUrl('/api/dashboard/metricas');
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    const metricsHTML = `
+      <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="metric-card total">
+          <div class="metric-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="metric-content">
+            <h3 class="metric-value">${data.total_inscricoes}</h3>
+            <p class="metric-label">Total de Inscrições</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="metric-card age">
+          <div class="metric-icon">
+            <i class="fas fa-birthday-cake"></i>
+          </div>
+          <div class="metric-content">
+            <h3 class="metric-value">${data.idade_media}</h3>
+            <p class="metric-label">Idade Média</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="metric-card skill">
+          <div class="metric-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <div class="metric-content">
+            <h3 class="metric-value">${data.proficiencia_media}/10</h3>
+            <p class="metric-label">Proficiência Média</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="metric-card experience">
+          <div class="metric-icon">
+            <i class="fas fa-certificate"></i>
+          </div>
+          <div class="metric-content">
+            <h3 class="metric-value">${data.com_experiencia_anterior}</h3>
+            <p class="metric-label">Com Experiência</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="metric-card docs">
+          <div class="metric-icon">
+            <i class="fas fa-file-check"></i>
+          </div>
+          <div class="metric-content">
+            <h3 class="metric-value">${data.taxa_documentos}%</h3>
+            <p class="metric-label">Taxa de Documentos</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="metric-card remaining">
+          <div class="metric-icon">
+            <i class="fas fa-hourglass-half"></i>
+          </div>
+          <div class="metric-content">
+            <h3 class="metric-value">${data.vagas_restantes}</h3>
+            <p class="metric-label">Vagas Restantes</p>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    document.getElementById('metricsCards').innerHTML = metricsHTML;
+    
+    // Gerar insights baseados nos dados
+    generateInsights(data);
+    
+  } catch (error) {
+    console.error('Erro ao carregar métricas:', error);
+  }
+}
+
+// Função para gerar insights automáticos
+function generateInsights(data) {
+  let insights = [];
+  
+  if (data.idade_media < 20) {
+    insights.push('📊 Público jovem: A idade média dos candidatos é baixa, indicando interesse precoce em qualificação tecnológica.');
+  }
+  
+  if (data.proficiencia_media < 5) {
+    insights.push('💡 Oportunidade de crescimento: O nível médio de proficiência indica que o curso atenderá bem às necessidades dos candidatos.');
+  }
+  
+  if (data.com_experiencia_anterior > data.total_inscricoes / 2) {
+    insights.push('🎓 Base sólida: Mais da metade dos candidatos já possui experiência anterior em informática.');
+  }
+  
+  if (data.taxa_documentos > 90) {
+    insights.push('✅ Excelente adesão: Alta taxa de envio de documentos demonstra comprometimento dos candidatos.');
+  }
+  
+  if (data.vagas_restantes <= 5) {
+    insights.push('🔥 Alta demanda: Poucas vagas restantes indicam grande interesse no curso.');
+  }
+  
+  const insightsHTML = insights.map(insight => 
+    `<div class="insight-item">${insight}</div>`
+  ).join('');
+  
+  document.getElementById('insightsContent').innerHTML = insightsHTML || 
+    '<div class="insight-item">📈 Colete mais dados para gerar insights personalizados.</div>';
+}
+
+// Função para carregar gráfico de escolaridade
+async function loadEscolaridadeChart() {
+  try {
+    const url = buildFilteredUrl('/api/dashboard/escolaridade');
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    const ctx = document.getElementById('chartEscolaridade').getContext('2d');
+    
+    charts.escolaridade = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(data),
+        datasets: [{
+          data: Object.values(data),
+          backgroundColor: [
+            colors.primary,
+            colors.secondary,
+            colors.success,
+            colors.info,
+            colors.warning,
+            colors.danger
+          ],
+          borderWidth: 2,
+          borderColor: '#fff',
+          hoverBorderWidth: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              padding: 20,
+              usePointStyle: true
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const label = context.label || '';
+                const value = context.parsed;
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const percentage = Math.round((value / total) * 100);
+                return `${label}: ${value} (${percentage}%)`;
+              }
+            }
+          }
+        },
+        onHover: (event, activeElements) => {
+          event.native.target.style.cursor = activeElements.length > 0 ? 'pointer' : 'default';
+        },
+        onClick: (event, activeElements) => {
+          if (activeElements.length > 0) {
+            const index = activeElements[0].index;
+            const label = charts.escolaridade.data.labels[index];
+            
+            // Aplicar filtro por escolaridade
+            if (activeFilters['escolaridade'] === label) {
+              removeFilter('escolaridade');
+            } else {
+              applyFilter('escolaridade', label);
+            }
+          }
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao carregar gráfico de escolaridade:', error);
+  }
+}
+
+// Função para carregar gráfico de idade
+async function loadIdadeChart() {
+  try {
+    const url = buildFilteredUrl('/api/dashboard/idade');
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    const ctx = document.getElementById('chartIdade').getContext('2d');
+    
+    charts.idade = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: Object.keys(data),
+        datasets: [{
+          data: Object.values(data),
+          backgroundColor: [
+            colors.success,
+            colors.info,
+            colors.warning,
+            colors.orange,
+            colors.danger
+          ],
+          borderWidth: 2,
+          borderColor: '#fff',
+          hoverBorderWidth: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              padding: 15,
+              usePointStyle: true
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const label = context.label || '';
+                const value = context.parsed;
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const percentage = Math.round((value / total) * 100);
+                return `${label}: ${value} (${percentage}%)`;
+              }
+            }
+          }
+        },
+        onHover: (event, activeElements) => {
+          event.native.target.style.cursor = activeElements.length > 0 ? 'pointer' : 'default';
+        },
+        onClick: (event, activeElements) => {
+          if (activeElements.length > 0) {
+            const index = activeElements[0].index;
+            const label = charts.idade.data.labels[index];
+            
+            // Aplicar filtro por faixa etária
+            if (activeFilters['faixa_idade'] === label) {
+              // Se já está filtrado por esta faixa, remover filtro
+              removeFilter('faixa_idade');
+            } else {
+              // Aplicar novo filtro
+              applyFilter('faixa_idade', label);
+            }
+          }
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao carregar gráfico de idade:', error);
+  }
+}
+
+// Função para carregar gráfico de proficiência
+async function loadProficienciaChart() {
+  try {
+    const url = buildFilteredUrl('/api/dashboard/proficiencia');
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    const ctx = document.getElementById('chartProficiencia').getContext('2d');
+    
+    charts.proficiencia = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: Object.keys(data),
+        datasets: [{
+          label: 'Candidatos',
+          data: Object.values(data),
+          backgroundColor: createGradient(ctx, colors.warning + '80', colors.warning),
+          borderColor: colors.warning,
+          borderWidth: 2,
+          borderRadius: 6,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1
+            }
+          },
+          x: {
+            ticks: {
+              maxRotation: 45
+            }
+          }
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao carregar gráfico de proficiência:', error);
+  }
+}
+
+// Função para carregar gráfico de curso anterior
+async function loadCursoAnteriorChart() {
+  try {
+    const url = buildFilteredUrl('/api/dashboard/curso-anterior');
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    const ctx = document.getElementById('chartCursoAnterior').getContext('2d');
+    
+    charts.cursoAnterior = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(data),
+        datasets: [{
+          data: Object.values(data),
+          backgroundColor: [
+            colors.success,
+            colors.danger,
+            colors.secondary
+          ],
+          borderWidth: 2,
+          borderColor: '#fff'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              padding: 20,
+              usePointStyle: true
+            }
+          }
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao carregar gráfico de curso anterior:', error);
+  }
+}
+
+// Função para carregar gráfico de cidades
+async function loadCidadesChart() {
+  try {
+    const url = buildFilteredUrl('/api/dashboard/cidades');
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    const ctx = document.getElementById('chartCidades').getContext('2d');
+    
+    charts.cidades = new Chart(ctx, {
+      type: 'horizontalBar',
+      data: {
+        labels: Object.keys(data),
+        datasets: [{
+          label: 'Candidatos',
+          data: Object.values(data),
+          backgroundColor: createGradient(ctx, colors.danger + '80', colors.danger),
+          borderColor: colors.danger,
+          borderWidth: 2,
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          x: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1
+            }
+          }
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao carregar gráfico de cidades:', error);
+  }
+}
+
+// Função para carregar gráfico de timeline
+async function loadTimelineChart() {
+  try {
+    const url = buildFilteredUrl('/api/dashboard/timeline');
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    const ctx = document.getElementById('chartTimeline').getContext('2d');
+    
+    charts.timeline = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: Object.keys(data),
+        datasets: [{
+          label: 'Inscrições por dia',
+          data: Object.values(data),
+          borderColor: colors.primary,
+          backgroundColor: colors.primary + '20',
+          tension: 0.4,
+          fill: true,
+          pointBackgroundColor: colors.primary,
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          pointRadius: 5
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1
+            }
+          }
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao carregar gráfico de timeline:', error);
+  }
+}
+
+// Função para carregar gráfico de status
+async function loadStatusChart() {
+  try {
+    const url = buildFilteredUrl('/api/dashboard/status');
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    const ctx = document.getElementById('chartStatus').getContext('2d');
+    
+    charts.status = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: Object.keys(data),
+        datasets: [{
+          label: 'Quantidade',
+          data: Object.values(data),
+          backgroundColor: [
+            colors.warning,
+            colors.success,
+            colors.danger,
+            colors.info
+          ],
+          borderColor: [
+            colors.warning,
+            colors.success,
+            colors.danger,
+            colors.info
+          ],
+          borderWidth: 2,
+          borderRadius: 8,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1
+            }
+          }
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao carregar gráfico de status:', error);
+  }
+}
+
+// Função para carregar gráfico de documentos
+async function loadDocumentosChart() {
+  try {
+    const url = buildFilteredUrl('/api/dashboard/documentos');
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    const ctx = document.getElementById('chartDocumentos').getContext('2d');
+    
+    charts.documentos = new Chart(ctx, {
+      type: 'polarArea',
+      data: {
+        labels: Object.keys(data),
+        datasets: [{
+          data: Object.values(data),
+          backgroundColor: [
+            colors.primary + '80',
+            colors.orange + '80',
+            colors.success + '80',
+            colors.secondary + '80'
+          ],
+          borderColor: [
+            colors.primary,
+            colors.orange,
+            colors.success,
+            colors.secondary
+          ],
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              padding: 15,
+              usePointStyle: true
+            }
+          }
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao carregar gráfico de documentos:', error);
+  }
+}
+
+// Função para atualizar todo o dashboard
+async function refreshDashboard() {
+  // Mostrar loading
+  const refreshBtn = document.querySelector('[onclick="refreshDashboard()"]');
+  const originalHTML = refreshBtn.innerHTML;
+  refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Atualizando...';
+  refreshBtn.disabled = true;
+  
+  try {
+    // Destruir gráficos existentes
+    Object.values(charts).forEach(chart => {
+      if (chart) chart.destroy();
+    });
+    
+    // Recarregar todos os dados
+    await Promise.all([
+      loadMetrics(),
+      loadEscolaridadeChart(),
+      loadIdadeChart(),
+      loadProficienciaChart(),
+      loadCursoAnteriorChart(),
+      loadCidadesChart(),
+      loadTimelineChart(),
+      loadStatusChart(),
+      loadDocumentosChart()
+    ]);
+    
+    console.log('✅ Dashboard atualizado com sucesso!');
+    
+  } catch (error) {
+    console.error('Erro ao atualizar dashboard:', error);
+  } finally {
+    // Restaurar botão
+    refreshBtn.innerHTML = originalHTML;
+    refreshBtn.disabled = false;
+  }
+}
+
+// Inicializar dashboard quando a página carregar
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('🚀 Inicializando Dashboard Analytics...');
+  refreshDashboard();
+});
+</script>
+{% endblock %} 

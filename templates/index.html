@@ -1,0 +1,1318 @@
+{% extends "base.html" %}
+
+{% block title %}UEMASUL - Qualificação de Jovens para o Mercado de Trabalho{% endblock %}
+
+{% block content %}
+  <!-- HERO BANNER -->
+  <section id="home" class="hero-section">
+    <div class="banner-container">
+      <img src="{{ url_for('static', filename='images/banner-bg.jpg') }}" alt="Jovens em treinamento profissional">
+      <div class="container banner-content">
+        <div class="hero-text animate__animated">
+          <h1 class="responsive-headline">
+            Qualificação de Jovens<br>
+            <span class="animate__animated animate__fadeIn">para o Mercado de Trabalho</span>
+          </h1>
+          <p class="lead mb-4" style="font-size: 1.25rem;">
+            Capacitação em Word, Excel e Power BI para o futuro profissional
+          </p>
+          {% if not inscricoes_iniciadas %}
+            <button class="btn btn-gold btn-lg" disabled style="opacity: 0.7;">
+              <i class="fas fa-clock me-2"></i> Inscrições em {{ data_inicio_inscricoes }}
+            </button>
+          {% elif inscricoes_abertas %}
+            <div class="d-flex gap-3 justify-content-center">
+              <a href="{{ url_for('inscricao') }}" class="btn btn-gold btn-lg">
+                Inscreva-se Já <i class="fas fa-arrow-right ms-2"></i>
+              </a>
+              <a href="#resultado" class="btn btn-outline-light btn-lg">
+                <i class="fas fa-list me-2"></i>Ver Resultado
+              </a>
+            </div>
+          {% else %}
+            <button class="btn btn-gold btn-lg" disabled style="opacity: 0.7;">
+              <i class="fas fa-times me-2"></i> Inscrições Encerradas
+            </button>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES SECTION -->
+  <section id="features" class="features-section">
+    <div class="container">
+      <div class="text-center mb-5">
+        <h2 class="section-title">CARACTERÍSTICAS</h2>
+        <p class="section-subtitle">
+          Capacitação Tecnológica para Jovens: Oportunidade de Qualificação e Inserção no mercado de Trabalho.
+        </p>
+      </div>
+
+      <div class="row align-items-center">
+        <!-- Lado Esquerdo -->
+        <div class="col-lg-4 col-md-6">
+          <div class="feature-card animate__animated" data-animation="fadeInUp" data-delay="0.1s">
+            <div class="d-flex align-items-start">
+              <div class="icon-container">
+                <i class="fas fa-map-marker-alt feature-icon"></i>
+              </div>
+              <div class="feature-content">
+                <h4>Oportunidade de Capacitação:</h4>
+                <p>Ferramentas como Word, Excel, PowerPoint e Power BI são ensinadas, essenciais no mercado de trabalho.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="feature-card animate__animated" data-animation="fadeInUp" data-delay="0.2s">
+            <div class="d-flex align-items-start">
+              <div class="icon-container">
+                <i class="fas fa-puzzle-piece feature-icon"></i>
+              </div>
+              <div class="feature-content">
+                <h4>Desenvolvimento de Competências:</h4>
+                <p>Promove habilidades práticas e cognitivas para o ambiente profissional.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="feature-card animate__animated" data-animation="fadeInUp" data-delay="0.3s">
+            <div class="d-flex align-items-start">
+              <div class="icon-container">
+                <i class="fas fa-users feature-icon"></i>
+              </div>
+              <div class="feature-content">
+                <h4>Inclusão Social e Digital:</h4>
+                <p>Acesso ao conhecimento digital para jovens em situação de vulnerabilidade social.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Imagem Central -->
+        <div class="col-lg-4 d-none d-lg-block">
+          <div class="center-image">
+            <img src="{{ url_for('static', filename='images/single-iphone.png') }}" class="animate__animated" alt="Alunos em capacitação profissional">
+          </div>
+        </div>
+
+        <!-- Lado Direito -->
+        <div class="col-lg-4 col-md-6">
+          <div class="feature-card animate__animated" data-animation="fadeInUp" data-delay="0.4s">
+            <div class="d-flex align-items-start">
+              <div class="icon-container">
+                <i class="fas fa-lightbulb feature-icon"></i>
+              </div>
+              <div class="feature-content">
+                <h4>Aumento das Oportunidades de Emprego:</h4>
+                <p>A capacitação em informática amplia as chances de ingresso no mercado de trabalho.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="feature-card animate__animated" data-animation="fadeInUp" data-delay="0.5s">
+            <div class="d-flex align-items-start">
+              <div class="icon-container">
+                <i class="fas fa-laptop-code feature-icon"></i>
+              </div>
+              <div class="feature-content">
+                <h4>Transformação Digital e Inclusão:</h4>
+                <p>Capacitando Jovens para o Futuro Profissional.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="feature-card animate__animated" data-animation="fadeInUp" data-delay="0.6s">
+            <div class="d-flex align-items-start">
+              <div class="icon-container">
+                <i class="fas fa-award feature-icon"></i>
+              </div>
+              <div class="feature-content">
+                <h4>Qualificação e Certificação:</h4>
+                <p>Certificado de 30h para quem atingir 75% de frequência, agregando valor ao currículo.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT SECTION -->
+  <section id="aboutUs" class="about-section py-5">
+  <div class="container">
+    <div class="heading text-center mb-5">
+      <h2 class="section-title animate__animated" data-animation="fadeInUp">SOBRE O PROJETO</h2>
+      <p class="section-subtitle animate__animated" data-animation="fadeInUp" data-delay="0.2s">
+        Capacitando para o futuro, através do domínio de ferramentas tecnológicas essenciais
+      </p>
+    </div>
+    
+    <div class="row align-items-center feature-row animate__animated" data-animation="fadeIn">
+      <div class="col-lg-6 order-lg-2">
+        <div class="about-content p-4 p-lg-5">
+          <div class="icon-box mb-4">
+            <i class="fas fa-graduation-cap"></i>
+          </div>
+          <h3 class="mb-4">Formando Multiplicadores de Conhecimento</h3>
+          <p class="lead">
+            O projeto visa qualificar acadêmicos da UEMASUL para se tornarem multiplicadores no ensino de informática
+            para jovens do Ensino Médio.
+          </p>
+          <ul class="feature-list">
+            <li>
+              <i class="fas fa-check-circle"></i>
+              <span>Capacitação em Word, Excel, PowerPoint e Power BI</span>
+            </li>
+            <li>
+              <i class="fas fa-check-circle"></i>
+              <span>Foco em habilidades para o mercado de trabalho</span>
+            </li>
+            <li>
+              <i class="fas fa-check-circle"></i>
+              <span>Certificado de 30 horas para 75% de frequência</span>
+            </li>
+            <li>
+              <i class="fas fa-check-circle"></i>
+              <span>Atividades práticas no laboratório de informática</span>
+            </li>
+          </ul>
+          
+          <div class="stats mt-5">
+            <div class="stat-item">
+              <div class="counter" data-target="4">0</div>
+              <span>Alunos Capacitados</span>
+            </div>
+            <div class="stat-item">
+              <div class="counter" data-target="30">0</div>
+              <span>Horas de Curso</span>
+            </div>
+            <div class="stat-item">
+              <div class="counter" data-target="4">0</div>
+                <span>Ferramentas Ensinadas</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-6 order-lg-1">
+        <div class="feature-media p-3">
+          <div class="image-container">
+              <img src="{{ url_for('static', filename='images/feature-img-1.png') }}" alt="Acadêmicos em treinamento" class="main-image animate__animated" data-animation="zoomIn">
+            <div class="floating-elements">
+              <div class="floating-icon" style="--delay: 0.2s">
+                <i class="fab fa-microsoft"></i>
+              </div>
+              <div class="floating-icon" style="--delay: 0.4s">
+                <i class="fas fa-chart-line"></i>
+              </div>
+              <div class="floating-icon" style="--delay: 0.6s">
+                <i class="fas fa-laptop-code"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+  <!-- SERVICES SECTION -->
+<section id="services" class="services-section py-5">
+  <div class="container">
+    <div class="heading text-center mb-5">
+      <h2 class="section-title animate__animated" data-animation="fadeInUp">O QUE VAMOS APRENDER</h2>
+      <p class="section-subtitle animate__animated" data-animation="fadeInUp" data-delay="0.2s">
+        Aprendizados essenciais em ferramentas digitais
+      </p>
+    </div>
+    
+    <div class="row g-4">
+      <!-- Excel -->
+      <div class="col-lg-4 col-md-6">
+        <div class="service-card animate__animated" data-animation="fadeInUp" data-delay="0.1s">
+          <div class="service-icon">
+            <i class="fas fa-table"></i>
+          </div>
+          <h3>Excel</h3>
+          <p>Organizar dados em planilhas, realizar cálculos simples, criar gráficos e aprender funções básicas como soma, média e contagem.</p>
+          <div class="service-badge">Planilhas</div>
+          <div class="hover-content">
+            <h4>Conteúdo Detalhado:</h4>
+            <ul>
+              <li>Fórmulas básicas e avançadas</li>
+              <li>Formatação condicional</li>
+              <li>Criação de gráficos</li>
+              <li>Análise de dados</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+      <!-- PowerPoint -->
+      <div class="col-lg-4 col-md-6">
+        <div class="service-card animate__animated" data-animation="fadeInUp" data-delay="0.2s">
+          <div class="service-icon">
+            <i class="fas fa-chart-pie"></i>
+          </div>
+          <h3>PowerPoint</h3>
+          <p>Criar apresentações de slides, adicionar animações e transições, e trabalhar com layouts e imagens para uma apresentação visualmente atraente.</p>
+          <div class="service-badge">Apresentações</div>
+          <div class="hover-content">
+            <h4>Conteúdo Detalhado:</h4>
+            <ul>
+              <li>Design de slides</li>
+              <li>Animações profissionais</li>
+              <li>Transições criativas</li>
+              <li>Apresentação eficaz</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Power BI -->
+      <div class="col-lg-4 col-md-6">
+        <div class="service-card animate__animated" data-animation="fadeInUp" data-delay="0.3s">
+          <div class="service-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <h3>Power BI</h3>
+          <p>Introdução à criação de gráficos e dashboards para análise de dados, aprendendo a importar dados e gerar relatórios interativos.</p>
+          <div class="service-badge">Dashboards</div>
+          <div class="hover-content">
+            <h4>Conteúdo Detalhado:</h4>
+            <ul>
+              <li>Visualização de dados</li>
+              <li>Relatórios interativos</li>
+              <li>Conectores de dados</li>
+              <li>Compartilhamento</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Edição de Textos -->
+      <div class="col-lg-4 col-md-6">
+        <div class="service-card animate__animated" data-animation="fadeInUp" data-delay="0.4s">
+          <div class="service-icon">
+            <i class="fas fa-file-word"></i>
+          </div>
+          <h3>Edição de Textos</h3>
+          <p>Trabalhar com formatação avançada, como inserção de tabelas, imagens e referências, além de aprender a revisar e melhorar textos conforme as normas.</p>
+          <div class="service-badge">Word</div>
+          <div class="hover-content">
+            <h4>Conteúdo Detalhado:</h4>
+            <ul>
+              <li>Formatação profissional</li>
+              <li>Estilos e templates</li>
+              <li>Referências e sumários</li>
+              <li>Revisão colaborativa</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Mala Direta -->
+      <div class="col-lg-4 col-md-6">
+        <div class="service-card animate__animated" data-animation="fadeInUp" data-delay="0.5s">
+          <div class="service-icon">
+            <i class="fas fa-mail-bulk"></i>
+          </div>
+          <h3>Mala Direta</h3>
+          <p>Criar mensagens personalizadas em massa usando uma lista de contatos.</p>
+          <div class="service-badge">Automação</div>
+          <div class="hover-content">
+            <h4>Conteúdo Detalhado:</h4>
+            <ul>
+              <li>Configuração de listas</li>
+              <li>Campos personalizados</li>
+              <li>Envio em massa</li>
+              <li>Modelos de documentos</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Conhecimento em Informática -->
+      <div class="col-lg-4 col-md-6">
+        <div class="service-card animate__animated" data-animation="fadeInUp" data-delay="0.6s">
+          <div class="service-icon">
+            <i class="fas fa-laptop-code"></i>
+          </div>
+          <h3>Informática Básica</h3>
+          <p>Criar, editar e formatar documentos de texto, além de aprender a utilizar ferramentas como revisão ortográfica e formatação de parágrafos.</p>
+          <div class="service-badge">Fundamentos</div>
+          <div class="hover-content">
+            <h4>Conteúdo Detalhado:</h4>
+            <ul>
+              <li>Editores de texto</li>
+              <li>Formatação básica</li>
+              <li>Organização de arquivos</li>
+              <li>Ferramentas essenciais</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+  <!-- GALLERY SECTION -->
+<section id="work" class="gallery-section py-5">
+  <div class="container">
+    <div class="heading text-center mb-5">
+      <h2 class="section-title">GALERIA</h2>
+      <p class="section-subtitle">Veja as ferramentas que vamos trabalhar no nosso curso</p>
+    </div>
+
+    <div class="row gallery-grid">
+      <!-- PowerPoint -->
+      <div class="col-lg-3 col-md-4 col-sm-6 gallery-item">
+        <div class="gallery-card">
+            <img src="{{ url_for('static', filename='images/1.jpg') }}" alt="Interface do PowerPoint" class="img-fluid">
+          <div class="gallery-overlay">
+            <div class="overlay-content">
+              <h4>PowerPoint</h4>
+              <p>Apresentações profissionais</p>
+                <button class="btn btn-sm btn-light preview-btn" data-src="{{ url_for('static', filename='images/1.jpg') }}">Ampliar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Área de Trabalho PowerPoint -->
+      <div class="col-lg-3 col-md-4 col-sm-6 gallery-item">
+        <div class="gallery-card">
+            <img src="{{ url_for('static', filename='images/2.jpg') }}" alt="Área de Trabalho PowerPoint" class="img-fluid">
+          <div class="gallery-overlay">
+            <div class="overlay-content">
+              <h4>Área de Trabalho</h4>
+              <p>PowerPoint - Design de slides</p>
+                <button class="btn btn-sm btn-light preview-btn" data-src="{{ url_for('static', filename='images/2.jpg') }}">Ampliar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Power BI -->
+      <div class="col-lg-3 col-md-4 col-sm-6 gallery-item">
+        <div class="gallery-card">
+            <img src="{{ url_for('static', filename='images/3.jpg') }}" alt="Área de Trabalho PowerBI" class="img-fluid">
+          <div class="gallery-overlay">
+            <div class="overlay-content">
+              <h4>Power BI</h4>
+              <p>Dashboards interativos</p>
+                <button class="btn btn-sm btn-light preview-btn" data-src="{{ url_for('static', filename='images/3.jpg') }}">Ampliar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Power BI Dashboard -->
+      <div class="col-lg-3 col-md-4 col-sm-6 gallery-item">
+        <div class="gallery-card">
+            <img src="{{ url_for('static', filename='images/4.png') }}" alt="Dashboard PowerBI" class="img-fluid">
+          <div class="gallery-overlay">
+            <div class="overlay-content">
+              <h4>Power BI</h4>
+              <p>Visualização de dados</p>
+                <button class="btn btn-sm btn-light preview-btn" data-src="{{ url_for('static', filename='images/4.png') }}">Ampliar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Word -->
+      <div class="col-lg-3 col-md-4 col-sm-6 gallery-item">
+        <div class="gallery-card">
+            <img src="{{ url_for('static', filename='images/5.jpg') }}" alt="Interface do Word" class="img-fluid">
+          <div class="gallery-overlay">
+            <div class="overlay-content">
+              <h4>Microsoft Word</h4>
+              <p>Edição profissional de textos</p>
+                <button class="btn btn-sm btn-light preview-btn" data-src="{{ url_for('static', filename='images/5.jpg') }}">Ampliar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Área de Trabalho Word -->
+      <div class="col-lg-3 col-md-4 col-sm-6 gallery-item">
+        <div class="gallery-card">
+            <img src="{{ url_for('static', filename='images/6.png') }}" alt="Área de Trabalho Word" class="img-fluid">
+          <div class="gallery-overlay">
+            <div class="overlay-content">
+              <h4>Área de Trabalho</h4>
+              <p>Word - Formatação avançada</p>
+                <button class="btn btn-sm btn-light preview-btn" data-src="{{ url_for('static', filename='images/6.png') }}">Ampliar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Excel -->
+      <div class="col-lg-3 col-md-4 col-sm-6 gallery-item">
+        <div class="gallery-card">
+            <img src="{{ url_for('static', filename='images/7.png') }}" alt="Planilha do Excel" class="img-fluid">
+          <div class="gallery-overlay">
+            <div class="overlay-content">
+              <h4>Microsoft Excel</h4>
+              <p>Análise de dados</p>
+                <button class="btn btn-sm btn-light preview-btn" data-src="{{ url_for('static', filename='images/7.png') }}">Ampliar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fórmulas Excel -->
+      <div class="col-lg-3 col-md-4 col-sm-6 gallery-item">
+        <div class="gallery-card">
+            <img src="{{ url_for('static', filename='images/8.jpg') }}" alt="Fórmulas do Excel" class="img-fluid">
+          <div class="gallery-overlay">
+            <div class="overlay-content">
+              <h4>Fórmulas Excel</h4>
+              <p>Cálculos avançados</p>
+                <button class="btn btn-sm btn-light preview-btn" data-src="{{ url_for('static', filename='images/8.jpg') }}">Ampliar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para visualização ampliada -->
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalTitle"></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-center">
+            <img src="" id="modalImage" class="img-fluid" alt="">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+  <!-- TEAM SECTION -->
+<section id="team" class="team-section py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="section-title">NOSSA EQUIPE</h2>
+      <p class="section-subtitle">Executora do projeto Qualificação de Jovens para o mercado de trabalho</p>
+    </div>
+
+    <!-- Professora Orientadora (Destaque) -->
+    <div class="row justify-content-center mb-5">
+      <div class="col-lg-6 col-md-8">
+        <div class="team-card team-lead">
+          <div class="member-photo">
+              <img src="{{ url_for('static', filename='images/photo-5.jpg') }}" alt="Profa. Iracema da Silva" class="img-fluid">
+            <div class="photo-border"></div>
+          </div>
+          <div class="member-info">
+            <h3>Iracema da Silva</h3>
+            <p class="position">Profa. Orientadora do projeto</p>
+            <p class="bio">Coordenadora do projeto de qualificação profissional com mais de 15 anos de experiência em capacitação tecnológica.</p>
+            <div class="social-links">
+              <a href="mailto:iracemarocha@uemasul.edu.br" class="social-icon" title="Email">
+                <i class="fas fa-envelope"></i>
+              </a>
+                <a href="https://w.app/evrplt" target="_blank" rel="noopener" class="social-icon" title="WhatsApp">
+                <i class="fab fa-whatsapp"></i>
+              </a>
+                <a href="https://www.instagram.com/p/DGYSZYVOAVC/" target="_blank" rel="noopener" class="social-icon" title="Instagram">
+                <i class="fab fa-instagram"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Equipe de Acadêmicos -->
+    <div class="row g-4">
+      <!-- Brenda Oliveira -->
+      <div class="col-lg-3 col-md-6">
+        <div class="team-card">
+          <div class="member-photo">
+              <img src="{{ url_for('static', filename='images/photo-1.jpg') }}" alt="Brenda Oliveira" class="img-fluid">
+            <div class="photo-border"></div>
+          </div>
+          <div class="member-info">
+            <h4>Brenda Oliveira</h4>
+            <p class="position">Acadêmica - ADM</p>
+            <div class="social-links">
+              <a href="mailto:brenda.s.oliveira@uemasul.edu.br" class="social-icon" title="Email">
+                <i class="fas fa-envelope"></i>
+              </a>
+                <a href="https://api.whatsapp.com/send?phone=5599988585269" target="_blank" rel="noopener" class="social-icon" title="WhatsApp">
+                <i class="fab fa-whatsapp"></i>
+              </a>
+                <a href="https://www.instagram.com/_brendai/" target="_blank" rel="noopener" class="social-icon" title="Instagram">
+                <i class="fab fa-instagram"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mateus Oliveira -->
+      <div class="col-lg-3 col-md-6">
+        <div class="team-card">
+          <div class="member-photo">
+              <img src="{{ url_for('static', filename='images/photo-2.jpg') }}" alt="Mateus Oliveira" class="img-fluid">
+            <div class="photo-border"></div>
+          </div>
+          <div class="member-info">
+            <h4>Mateus Oliveira</h4>
+            <p class="position">Acadêmico - ADM</p>
+            <div class="social-links">
+                <a href="mailto:mateus.conceicao@uemasul.edu.br" class="social-icon" title="Email">
+                <i class="fas fa-envelope"></i>
+              </a>
+                <a href="https://api.whatsapp.com/send?phone=5599988585269" target="_blank" rel="noopener" class="social-icon" title="WhatsApp">
+                <i class="fab fa-whatsapp"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Roxanne Kelly -->
+      <div class="col-lg-3 col-md-6">
+        <div class="team-card">
+          <div class="member-photo">
+              <img src="{{ url_for('static', filename='images/photo-4.jpg') }}" alt="Roxanne Kelly" class="img-fluid">
+            <div class="photo-border"></div>
+          </div>
+          <div class="member-info">
+            <h4>Roxanne Kelly</h4>
+            <p class="position">Acadêmica - ADM</p>
+            <div class="social-links">
+              <a href="mailto:roxanne.sousa@uemasul.edu.br" class="social-icon" title="Email">
+                <i class="fas fa-envelope"></i>
+              </a>
+                <a href="https://w.app/awckc7" target="_blank" rel="noopener" class="social-icon" title="WhatsApp">
+                <i class="fab fa-whatsapp"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Maria Gabrielle -->
+      <div class="col-lg-3 col-md-6">
+        <div class="team-card">
+          <div class="member-photo">
+              <img src="{{ url_for('static', filename='images/photo-3.jpg') }}" alt="Maria Gabrielle" class="img-fluid">
+            <div class="photo-border"></div>
+          </div>
+          <div class="member-info">
+            <h4>Maria Gabrielle</h4>
+            <p class="position">Acadêmica - ADM</p>
+            <div class="social-links">
+              <a href="mailto:maria.r.marinho@uemasul.edu.br" class="social-icon" title="Email">
+                <i class="fas fa-envelope"></i>
+              </a>
+                <a href="https://w.app/bsf3qc" target="_blank" rel="noopener" class="social-icon" title="WhatsApp">
+                <i class="fab fa-whatsapp"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+  <!-- GALERIA SECTION -->
+<section id="resultado" class="gallery-section py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="section-title">GALERIA DE FOTOS</h2>
+      <p class="section-subtitle">Momentos especiais do nosso projeto de qualificação</p>
+    </div>
+
+    <div class="row gallery-grid">
+      {% for foto in dados_galeria.fotos %}
+        {% set nome_arquivo = foto.split('\\')[-1] %}
+        {% set nome_sem_extensao = nome_arquivo.split('.')[0] %}
+        <div class="col-lg-4 col-md-6 gallery-item">
+          <div class="gallery-card">
+            <img src="{{ url_for('static', filename='images/' + nome_arquivo) }}" alt="Foto do projeto" class="img-fluid">
+            <div class="gallery-overlay">
+              <div class="overlay-content">
+                <h4>{{ nome_sem_extensao }}</h4>
+                <p>Momento especial do projeto</p>
+                <button class="btn btn-sm btn-light preview-btn" data-src="{{ url_for('static', filename='images/' + nome_arquivo) }}">Ampliar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Paginação -->
+    {% if dados_galeria.total_paginas > 1 %}
+    <div class="row mt-4">
+      <div class="col-12">
+        <nav aria-label="Paginação da galeria">
+          <ul class="pagination justify-content-center">
+            <!-- Botão Anterior -->
+            {% if dados_galeria.tem_anterior %}
+              <li class="page-item">
+                <a class="page-link pagination-link" href="{{ url_for('index', pagina=dados_galeria.pagina_atual - 1) }}" data-target="#resultado">
+                  <i class="fas fa-chevron-left"></i> Anterior
+                </a>
+              </li>
+            {% else %}
+              <li class="page-item disabled">
+                <span class="page-link">
+                  <i class="fas fa-chevron-left"></i> Anterior
+                </span>
+              </li>
+            {% endif %}
+
+            <!-- Números das páginas -->
+            {% for pagina in range(1, dados_galeria.total_paginas + 1) %}
+              {% if pagina == dados_galeria.pagina_atual %}
+                <li class="page-item active">
+                  <span class="page-link">{{ pagina }}</span>
+                </li>
+              {% elif pagina <= 3 or pagina > dados_galeria.total_paginas - 3 or (pagina >= dados_galeria.pagina_atual - 1 and pagina <= dados_galeria.pagina_atual + 1) %}
+                <li class="page-item">
+                  <a class="page-link pagination-link" href="{{ url_for('index', pagina=pagina) }}" data-target="#resultado">{{ pagina }}</a>
+                </li>
+              {% elif pagina == 4 and dados_galeria.pagina_atual > 5 %}
+                <li class="page-item disabled">
+                  <span class="page-link">...</span>
+                </li>
+              {% elif pagina == dados_galeria.total_paginas - 3 and dados_galeria.pagina_atual < dados_galeria.total_paginas - 4 %}
+                <li class="page-item disabled">
+                  <span class="page-link">...</span>
+                </li>
+              {% endif %}
+            {% endfor %}
+
+            <!-- Botão Próximo -->
+            {% if dados_galeria.tem_proxima %}
+              <li class="page-item">
+                <a class="page-link pagination-link" href="{{ url_for('index', pagina=dados_galeria.pagina_atual + 1) }}" data-target="#resultado">
+                  Próximo <i class="fas fa-chevron-right"></i>
+                </a>
+              </li>
+            {% else %}
+              <li class="page-item disabled">
+                <span class="page-link">
+                  Próximo <i class="fas fa-chevron-right"></i>
+                </span>
+              </li>
+            {% endif %}
+          </ul>
+        </nav>
+        
+        <!-- Informações da paginação -->
+        <div class="text-center mt-3">
+          <p class="text-muted">
+            Página {{ dados_galeria.pagina_atual }} de {{ dados_galeria.total_paginas }} 
+            ({{ dados_galeria.total_fotos }} fotos no total)
+          </p>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+  <!-- CONTACT SECTION -->
+<section id="contactUs" class="contact-section py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 text-center mb-5">
+          <h2 class="section-title text-white">ENTRE EM CONTATO</h2>
+          <p class="section-subtitle text-white">Escolha a melhor forma de se inscrever ou tirar dúvidas</p>
+          
+          <!-- Status das Vagas -->
+          <div class="mt-4">
+            {% if not inscricoes_iniciadas %}
+              <!-- Cronômetro para início das inscrições -->
+              <div class="countdown-container">
+                <div class="countdown-header">
+                  <i class="fas fa-clock countdown-icon"></i>
+                  <h3 class="countdown-title">Inscrições Abertas Em</h3>
+                  <p class="countdown-date">{{ data_inicio_inscricoes }}</p>
+                </div>
+                <div id="countdown" class="countdown-display">
+                  <div class="countdown-grid">
+                    <div class="countdown-card">
+                      <span id="days" class="countdown-number">00</span>
+                      <span class="countdown-label">Dias</span>
+                    </div>
+                    <div class="countdown-separator">:</div>
+                    <div class="countdown-card">
+                      <span id="hours" class="countdown-number">00</span>
+                      <span class="countdown-label">Horas</span>
+                    </div>
+                    <div class="countdown-separator">:</div>
+                    <div class="countdown-card">
+                      <span id="minutes" class="countdown-number">00</span>
+                      <span class="countdown-label">Min</span>
+                    </div>
+                    <div class="countdown-separator">:</div>
+                    <div class="countdown-card">
+                      <span id="seconds" class="countdown-number">00</span>
+                      <span class="countdown-label">Seg</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% elif inscricoes_abertas %}
+              <div class="alert alert-success d-flex align-items-center justify-content-center">
+                <i class="fas fa-check-circle me-3 fa-lg"></i>
+                <div>
+                  <strong>Inscrições Abertas!</strong><br>
+                  <small>{{ vagas_restantes }} de {{ limite_maximo }} vagas disponíveis</small>
+                </div>
+              </div>
+            {% else %}
+              <div class="alert alert-warning d-flex align-items-center justify-content-center">
+                <i class="fas fa-exclamation-triangle me-3 fa-lg"></i>
+                <div>
+                  <strong>Inscrições Encerradas!</strong><br>
+                  <small>Limite máximo de {{ limite_maximo }} inscrições atingido</small>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="row justify-content-center">
+        <div class="col-lg-6">
+          <div class="contact-card h-100">
+            <div class="card-header">
+              <i class="fas fa-edit me-2"></i>
+              <h3>Inscrição Online</h3>
+            </div>
+            <div class="card-body text-center">
+              <div class="contact-option">
+                <i class="fas fa-user-graduate text-primary" style="font-size: 4rem; margin-bottom: 1.5rem;"></i>
+                <h4 class="mb-3 text-white">Inscrição Online</h4>
+                {% if not inscricoes_iniciadas %}
+                  <p class="mb-4 text-white">As inscrições ainda não começaram. Aguarde o cronômetro zerar!</p>
+                  
+                  <button class="btn btn-secondary btn-lg w-100" disabled>
+                    <i class="fas fa-clock me-2"></i> Aguarde o Início
+                  </button>
+                  
+                  <div class="mt-4">
+                    <p class="text-white"><small>Inscrições iniciam em<br><strong>{{ data_inicio_inscricoes }}</strong></small></p>
+                  </div>
+                {% elif inscricoes_abertas %}
+                  <p class="mb-4 text-white">Preencha nosso formulário completo de inscrição com todas as suas informações:</p>
+                  
+                  <a href="{{ url_for('inscricao') }}" class="btn btn-send btn-lg w-100">
+                    <i class="fas fa-edit me-2"></i> Fazer Inscrição
+                  </a>
+                  
+                  <div class="mt-4">
+                    <p class="text-white"><small>Formulário completo com validação<br><strong>Rápido e Seguro</strong></small></p>
+                  </div>
+                {% else %}
+                  <p class="mb-4 text-white">As inscrições para esta edição do projeto <strong>Qualifica Jovens</strong> foram encerradas.</p>
+                  
+                  <button class="btn btn-secondary btn-lg w-100" disabled>
+                    <i class="fas fa-calendar-times me-2"></i> Inscrições Encerradas
+                  </button>
+                  
+                  <div class="mt-4">
+                    <p class="text-white"><small>Aguarde a próxima edição do projeto<br><strong>Novas oportunidades em breve!</strong></small></p>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- JavaScript para o cronômetro -->
+  {% if not inscricoes_iniciadas %}
+  <script>
+    // Data de início das inscrições vinda do servidor
+    const dataInicio = new Date('{{ tempo_restante }}');
+    
+    function atualizarCronometro() {
+      const agora = new Date().getTime();
+      const tempoRestante = dataInicio.getTime() - agora;
+      
+      if (tempoRestante > 0) {
+        // Calcular tempo restante
+        const dias = Math.floor(tempoRestante / (1000 * 60 * 60 * 24));
+        const horas = Math.floor((tempoRestante % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutos = Math.floor((tempoRestante % (1000 * 60 * 60)) / (1000 * 60));
+        const segundos = Math.floor((tempoRestante % (1000 * 60)) / 1000);
+        
+        // Atualizar display
+        document.getElementById('days').textContent = dias.toString().padStart(2, '0');
+        document.getElementById('hours').textContent = horas.toString().padStart(2, '0');
+        document.getElementById('minutes').textContent = minutos.toString().padStart(2, '0');
+        document.getElementById('seconds').textContent = segundos.toString().padStart(2, '0');
+             } else {
+         // Tempo esgotado - recarregar a página
+         document.getElementById('countdown').innerHTML = '<div class="countdown-finished"><i class="fas fa-check-circle me-3"></i><strong>Inscrições Abertas! Recarregando...</strong></div>';
+         setTimeout(() => {
+           window.location.reload();
+         }, 2000);
+       }
+    }
+    
+    // Atualizar cronômetro a cada segundo
+    atualizarCronometro(); // Execução imediata
+    setInterval(atualizarCronometro, 1000);
+  </script>
+  
+     <!-- CSS adicional para o cronômetro -->
+   <style>
+     .countdown-container {
+       background: linear-gradient(135deg, #003366, #192ae1, #17a2b8);
+       border-radius: 20px;
+       padding: 2rem;
+       margin: 2rem 0;
+       box-shadow: 0 15px 35px rgba(0, 51, 102, 0.3);
+       -webkit-backdrop-filter: blur(10px);
+       backdrop-filter: blur(10px);
+       border: 1px solid rgba(255, 255, 255, 0.1);
+       position: relative;
+       overflow: hidden;
+     }
+
+     .countdown-container::before {
+       content: '';
+       position: absolute;
+       top: 0;
+       left: 0;
+       right: 0;
+       bottom: 0;
+       background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+       pointer-events: none;
+     }
+     
+     .countdown-header {
+       text-align: center;
+       margin-bottom: 1.5rem;
+       position: relative;
+       z-index: 2;
+     }
+     
+     .countdown-icon {
+       font-size: 3rem;
+       color: #fff;
+       margin-bottom: 1rem;
+       text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+       animation: pulse 2s infinite;
+     }
+     
+     @keyframes pulse {
+       0%, 100% { transform: scale(1); }
+       50% { transform: scale(1.1); }
+     }
+     
+     .countdown-title {
+       color: #fff;
+       font-size: 1.8rem;
+       font-weight: 700;
+       margin-bottom: 0.5rem;
+       text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+     }
+     
+     .countdown-date {
+       color: rgba(255, 255, 255, 0.9);
+       font-size: 1.1rem;
+       margin-bottom: 0;
+       font-weight: 500;
+     }
+     
+     .countdown-display {
+       position: relative;
+       z-index: 2;
+     }
+     
+     .countdown-grid {
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       flex-wrap: wrap;
+       gap: 0.5rem;
+     }
+     
+            .countdown-card {
+         background: rgba(255, 255, 255, 0.15);
+         -webkit-backdrop-filter: blur(10px);
+         backdrop-filter: blur(10px);
+         border: 1px solid rgba(255, 255, 255, 0.2);
+       border-radius: 15px;
+       padding: 1.2rem 0.8rem;
+       text-align: center;
+       min-width: 80px;
+       position: relative;
+       transition: all 0.3s ease;
+       box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+     }
+     
+     .countdown-card:hover {
+       transform: translateY(-2px);
+       box-shadow: 0 12px 35px rgba(0,0,0,0.2);
+       background: rgba(255, 255, 255, 0.2);
+     }
+     
+     .countdown-number {
+       display: block;
+       font-size: 2.5rem;
+       font-weight: 800;
+       color: #fff;
+       line-height: 1;
+       text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+       font-family: 'Arial', monospace;
+     }
+     
+     .countdown-label {
+       display: block;
+       font-size: 0.75rem;
+       color: rgba(255, 255, 255, 0.85);
+       text-transform: uppercase;
+       margin-top: 0.5rem;
+       font-weight: 600;
+       letter-spacing: 1px;
+     }
+     
+     .countdown-separator {
+       font-size: 2rem;
+       color: rgba(255, 255, 255, 0.7);
+       font-weight: bold;
+       animation: blink 1s infinite;
+       margin: 0 0.5rem;
+     }
+     
+     @keyframes blink {
+       0%, 50% { opacity: 1; }
+       51%, 100% { opacity: 0.3; }
+     }
+     
+     .countdown-finished {
+       background: linear-gradient(135deg, #28a745, #20c997);
+       color: white;
+       padding: 1rem;
+       border-radius: 10px;
+       text-align: center;
+       font-size: 1.2rem;
+       box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+       animation: bounce 0.5s ease-in-out;
+     }
+     
+     @keyframes bounce {
+       0%, 20%, 60%, 100% { transform: translateY(0); }
+       40% { transform: translateY(-10px); }
+       80% { transform: translateY(-5px); }
+     }
+     
+     /* Responsividade */
+     @media (max-width: 768px) {
+       .countdown-container {
+         padding: 1.5rem 1rem;
+         margin: 1rem 0;
+       }
+       
+       .countdown-title {
+         font-size: 1.5rem;
+       }
+       
+       .countdown-number {
+         font-size: 2rem;
+       }
+       
+       .countdown-card {
+         min-width: 65px;
+         padding: 1rem 0.6rem;
+       }
+       
+       .countdown-separator {
+         font-size: 1.5rem;
+         margin: 0 0.2rem;
+       }
+       
+       .countdown-grid {
+         gap: 0.3rem;
+       }
+     }
+     
+     @media (max-width: 480px) {
+       .countdown-number {
+         font-size: 1.8rem;
+       }
+       
+       .countdown-card {
+         min-width: 55px;
+         padding: 0.8rem 0.4rem;
+       }
+       
+       .countdown-title {
+         font-size: 1.3rem;
+       }
+       
+       .countdown-icon {
+         font-size: 2.5rem;
+       }
+     }
+   </style>
+  {% endif %}
+
+  <!-- Estilos para a seção de inscritos -->
+  <style>
+
+
+    /* Estilos para a seção de resultado */
+    .resultado-section {
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+      position: relative;
+    }
+
+    .resultado-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="%23e9ecef" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    .resultado-section .container {
+      position: relative;
+      z-index: 2;
+    }
+
+    .resultado-table {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      overflow: hidden;
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .resultado-table thead th {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 1rem;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .resultado-table tbody tr {
+      transition: all 0.3s ease;
+    }
+
+    .resultado-table tbody tr:hover {
+      background-color: #f8f9fa;
+      transform: scale(1.01);
+    }
+
+    /* Estilos para status na tabela */
+    .resultado-table tr.status-aprovado {
+      background-color: rgba(40, 167, 69, 0.05);
+    }
+
+    .resultado-table tr.status-pendente {
+      background-color: rgba(255, 193, 7, 0.05);
+    }
+
+    .resultado-table tr.status-aprovado:hover {
+      background-color: rgba(40, 167, 69, 0.1);
+    }
+
+    .resultado-table tr.status-pendente:hover {
+      background-color: rgba(255, 193, 7, 0.1);
+    }
+
+    .resultado-table tr.status-excedente {
+      background-color: rgba(108, 117, 125, 0.05);
+    }
+
+    .resultado-table tr.status-excedente:hover {
+      background-color: rgba(108, 117, 125, 0.1);
+    }
+
+    .resultado-table .badge {
+      font-size: 0.85rem;
+      padding: 0.4rem 0.6rem;
+      border-radius: 20px;
+    }
+
+    .resultado-table .badge i {
+      font-size: 0.8rem;
+    }
+
+    .resultado-table tbody td {
+      padding: 1rem;
+      border-bottom: 1px solid #e9ecef;
+      vertical-align: middle;
+    }
+
+    .resultado-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .resultado-info {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      display: inline-block;
+    }
+
+    .status-stat {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
+      background: rgba(0,0,0,0.02);
+    }
+
+    .status-stat i {
+      font-size: 1.25rem;
+      width: 24px;
+      text-align: center;
+    }
+
+    .status-label {
+      font-size: 0.9rem;
+      color: #666;
+      margin-right: 0.5rem;
+    }
+
+    .status-number {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .empty-resultado {
+      padding: 3rem 1rem;
+    }
+
+    .empty-resultado i {
+      color: #dee2e6;
+    }
+
+    /* Responsividade para a tabela */
+    @media (max-width: 768px) {
+      .resultado-table {
+        font-size: 0.9rem;
+      }
+      
+      .resultado-table thead th,
+      .resultado-table tbody td {
+        padding: 0.75rem 0.5rem;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .resultado-table {
+        font-size: 0.8rem;
+      }
+      
+      .resultado-table thead th,
+      .resultado-table tbody td {
+        padding: 0.5rem 0.25rem;
+      }
+    }
+  </style>
+
+  <!-- JavaScript para navegação suave da paginação -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Interceptar cliques nos links de paginação
+      document.querySelectorAll('.pagination-link').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          const targetUrl = this.getAttribute('href');
+          const targetElement = document.querySelector(this.getAttribute('data-target'));
+          
+          // Fazer a requisição AJAX para carregar a nova página
+          fetch(targetUrl)
+            .then(response => response.text())
+            .then(html => {
+              // Criar um elemento temporário para parsear o HTML
+              const tempDiv = document.createElement('div');
+              tempDiv.innerHTML = html;
+              
+              // Encontrar a nova seção da galeria
+              const newGallerySection = tempDiv.querySelector('#resultado');
+              
+              if (newGallerySection && targetElement) {
+                // Substituir o conteúdo da galeria
+                targetElement.innerHTML = newGallerySection.innerHTML;
+                
+                // Scroll suave para a galeria
+                targetElement.scrollIntoView({ 
+                  behavior: 'smooth', 
+                  block: 'start' 
+                });
+                
+                // Reconfigurar os event listeners para os novos botões
+                setupPaginationListeners();
+              }
+            })
+            .catch(error => {
+              console.error('Erro ao carregar página:', error);
+              // Fallback: navegar normalmente
+              window.location.href = targetUrl;
+            });
+        });
+      });
+      
+      function setupPaginationListeners() {
+        // Reconfigurar os event listeners para os novos botões de paginação
+        document.querySelectorAll('.pagination-link').forEach(function(link) {
+          link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const targetUrl = this.getAttribute('href');
+            const targetElement = document.querySelector(this.getAttribute('data-target'));
+            
+            fetch(targetUrl)
+              .then(response => response.text())
+              .then(html => {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
+                const newGallerySection = tempDiv.querySelector('#resultado');
+                
+                if (newGallerySection && targetElement) {
+                  targetElement.innerHTML = newGallerySection.innerHTML;
+                  targetElement.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                  });
+                  setupPaginationListeners();
+                }
+              })
+              .catch(error => {
+                console.error('Erro ao carregar página:', error);
+                window.location.href = targetUrl;
+              });
+          });
+        });
+      }
+    });
+  </script>
+{% endblock %}

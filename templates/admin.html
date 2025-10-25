@@ -1,0 +1,495 @@
+{% extends "base.html" %}
+
+{% block title %}Administração - Inscrições do Curso{% endblock %}
+
+{% block content %}
+<section class="admin-section" style="margin-top: 80px; padding-top: 2rem;">
+  <div class="container">
+    <div class="admin-header">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <h1 class="mb-2">
+            <i class="fas fa-cogs me-3"></i>Administração de Inscrições
+          </h1>
+          <p class="mb-0">Curso de Qualificação de Jovens para o Mercado de Trabalho</p>
+        </div>
+        <div class="col-md-4 text-end">
+          <a href="{{ url_for('dashboard') }}" class="btn btn-warning me-2">
+            <i class="fas fa-chart-bar me-2"></i>Dashboard
+          </a>
+          <a href="{{ url_for('visualizar_inscricoes') }}" class="btn btn-info me-2">
+            <i class="fas fa-th-large me-2"></i>Cards
+          </a>
+          <a href="{{ url_for('exportar_inscricoes') }}" class="btn btn-light">
+            <i class="fas fa-download me-2"></i>Exportar CSV
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estatísticas -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="card bg-primary text-white">
+          <div class="card-body text-center">
+            <i class="fas fa-users fa-2x mb-2"></i>
+            <h3 class="mb-0">{{ total_inscricoes }}</h3>
+            <small>Total de Inscrições</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-warning text-dark">
+          <div class="card-body text-center">
+            <i class="fas fa-clock fa-2x mb-2"></i>
+            <h3 class="mb-0">{{ inscricoes_pendentes }}</h3>
+            <small>Pendentes</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-success text-white">
+          <div class="card-body text-center">
+            <i class="fas fa-check fa-2x mb-2"></i>
+            <h3 class="mb-0">{{ inscricoes_aprovadas }}</h3>
+            <small>Aprovadas</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-danger text-white">
+          <div class="card-body text-center">
+            <i class="fas fa-times fa-2x mb-2"></i>
+            <h3 class="mb-0">{{ inscricoes_rejeitadas }}</h3>
+            <small>Rejeitadas</small>
+          </div>
+        </div>
+      </div>
+      {% if inscricoes_excedentes > 0 %}
+      <div class="col-md-3 mt-3">
+        <div class="card bg-info text-white">
+          <div class="card-body text-center">
+            <i class="fas fa-user-plus fa-2x mb-2"></i>
+            <h3 class="mb-0">{{ inscricoes_excedentes }}</h3>
+            <small>Excedentes</small>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Filtros e Busca -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col-md-6">
+            <h5 class="mb-0">
+              <i class="fas fa-filter me-2"></i>Filtros e Busca
+            </h5>
+          </div>
+          <div class="col-md-6 text-end">
+            <button class="btn btn-outline-secondary btn-sm" onclick="limparFiltros()">
+              <i class="fas fa-times me-1"></i>Limpar Filtros
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label for="busca" class="form-label">Buscar por nome ou email:</label>
+            <input type="text" class="form-control" id="busca" placeholder="Digite para buscar...">
+          </div>
+          <div class="col-md-3 mb-3">
+            <label for="filtroStatus" class="form-label">Status:</label>
+            <select class="form-select" id="filtroStatus">
+              <option value="">Todos</option>
+              <option value="pendente">Pendente</option>
+              <option value="aprovado">Aprovado</option>
+              <option value="rejeitado">Rejeitado</option>
+              <option value="excedente">Excedente</option>
+            </select>
+          </div>
+          <div class="col-md-3 mb-3">
+            <label for="filtroIdade" class="form-label">Faixa Etária:</label>
+            <select class="form-select" id="filtroIdade">
+              <option value="">Todas</option>
+              <option value="14-18">14-18 anos</option>
+              <option value="19-25">19-25 anos</option>
+              <option value="26-35">26-35 anos</option>
+            </select>
+          </div>
+          <div class="col-md-2 mb-3">
+            <label for="porPagina" class="form-label">Por página:</label>
+            <select class="form-select" id="porPagina">
+              <option value="10">10</option>
+              <option value="25" selected>25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabela de Inscrições -->
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-list me-2"></i>Lista de Inscrições
+          <span class="badge bg-primary ms-2" id="totalFiltrado">{{ total_inscricoes }}</span>
+        </h5>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0" id="tabelaInscricoes">
+            <thead class="table-dark">
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Telefone</th>
+                <th>Idade</th>
+                <th>Cidade</th>
+                <th>Escolaridade</th>
+                <th>Documentos</th>
+                <th>Data</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for inscricao in inscricoes %}
+              <tr data-status="{{ inscricao.status }}" data-idade="{{ inscricao.idade }}" data-nome="{{ inscricao.nome_completo|lower }}" data-email="{{ inscricao.email|lower }}">
+                <td>{{ inscricao.id }}</td>
+                <td>
+                  <strong>{{ inscricao.nome_completo }}</strong>
+                </td>
+                <td>{{ inscricao.email }}</td>
+                <td>{{ inscricao.telefone or '-' }}</td>
+                <td>{{ inscricao.idade }} anos</td>
+                <td>{{ inscricao.cidade }}</td>
+                <td>{{ inscricao.escolaridade }}</td>
+                <td class="text-center">
+                  {% if inscricao.foto_path or inscricao.documento_pdf_path %}
+                    <div class="btn-group" role="group">
+                      {% if inscricao.foto_path %}
+                        <a href="{{ url_for('uploaded_file', filename=inscricao.foto_path) }}" 
+                           target="_blank" class="btn btn-sm btn-outline-info" title="Ver foto">
+                          <i class="fas fa-image"></i>
+                        </a>
+                      {% endif %}
+                      {% if inscricao.documento_pdf_path %}
+                        <a href="{{ url_for('uploaded_file', filename=inscricao.documento_pdf_path) }}" 
+                           target="_blank" class="btn btn-sm btn-outline-danger" title="Ver PDF">
+                          <i class="fas fa-file-pdf"></i>
+                        </a>
+                      {% endif %}
+                    </div>
+                  {% else %}
+                    <span class="text-muted">-</span>
+                  {% endif %}
+                </td>
+                <td>{{ inscricao.data_inscricao.strftime('%d/%m/%Y') if inscricao.data_inscricao else '-' }}</td>
+                <td>
+                  {% if inscricao.status == 'pendente' %}
+                    <span class="status-badge status-pendente">Pendente</span>
+                  {% elif inscricao.status == 'aprovado' %}
+                    <span class="status-badge status-aprovado">Aprovado</span>
+                  {% elif inscricao.status == 'excedente' %}
+                    <span class="status-badge status-excedente">Excedente</span>
+                  {% else %}
+                    <span class="status-badge status-rejeitado">Rejeitado</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-sm btn-outline-primary" 
+                            onclick="verDetalhes({{ inscricao.id }})" title="Ver detalhes">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                    <div class="btn-group" role="group">
+                      <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                              data-bs-toggle="dropdown" title="Alterar status">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('atualizar_status', inscricao_id=inscricao.id, status='pendente') }}">
+                          <i class="fas fa-clock text-warning me-2"></i>Pendente
+                        </a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('atualizar_status', inscricao_id=inscricao.id, status='aprovado') }}">
+                          <i class="fas fa-check text-success me-2"></i>Aprovar
+                        </a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('atualizar_status', inscricao_id=inscricao.id, status='rejeitado') }}">
+                          <i class="fas fa-times text-danger me-2"></i>Rejeitar
+                        </a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('atualizar_status', inscricao_id=inscricao.id, status='excedente') }}">
+                          <i class="fas fa-user-plus text-info me-2"></i>Excedente
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger btn-excluir-admin" href="#" 
+                               data-inscricao-id="{{ inscricao.id }}" data-nome="{{ inscricao.nome_completo }}">
+                          <i class="fas fa-trash me-2"></i>Excluir Inscrição
+                        </a></li>
+                      </ul>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-danger btn-excluir-admin" 
+                            data-inscricao-id="{{ inscricao.id }}" data-nome="{{ inscricao.nome_completo }}" 
+                            title="Excluir inscrição">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paginação -->
+    <nav aria-label="Paginação" class="mt-4">
+      <ul class="pagination justify-content-center" id="paginacao">
+        <!-- Será preenchido via JavaScript -->
+      </ul>
+    </nav>
+  </div>
+</section>
+
+<!-- Modal para ver detalhes -->
+<div class="modal fade" id="modalDetalhes" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Detalhes da Inscrição</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="conteudoDetalhes">
+        <!-- Será preenchido via JavaScript -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let inscricoes = {{ inscricoes_dict|tojson }};
+let paginaAtual = 1;
+let itensPorPagina = 25;
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Event listeners para filtros
+  document.getElementById('busca').addEventListener('input', filtrarTabela);
+  document.getElementById('filtroStatus').addEventListener('change', filtrarTabela);
+  document.getElementById('filtroIdade').addEventListener('change', filtrarTabela);
+  document.getElementById('porPagina').addEventListener('change', function() {
+    itensPorPagina = parseInt(this.value);
+    paginaAtual = 1;
+    filtrarTabela();
+  });
+  
+  // Aplicar filtros iniciais
+  filtrarTabela();
+});
+
+function filtrarTabela() {
+  const busca = document.getElementById('busca').value.toLowerCase();
+  const status = document.getElementById('filtroStatus').value;
+  const idade = document.getElementById('filtroIdade').value;
+  
+  const linhas = document.querySelectorAll('#tabelaInscricoes tbody tr');
+  let visiveisCount = 0;
+  let linhasVisiveis = [];
+  
+  linhas.forEach(linha => {
+    const nome = linha.dataset.nome;
+    const email = linha.dataset.email;
+    const statusLinha = linha.dataset.status;
+    const idadeLinha = parseInt(linha.dataset.idade);
+    
+    let mostrar = true;
+    
+    // Filtro de busca
+    if (busca && !nome.includes(busca) && !email.includes(busca)) {
+      mostrar = false;
+    }
+    
+    // Filtro de status
+    if (status && statusLinha !== status) {
+      mostrar = false;
+    }
+    
+    // Filtro de idade
+    if (idade) {
+      const [min, max] = idade.split('-').map(Number);
+      if (idadeLinha < min || idadeLinha > max) {
+        mostrar = false;
+      }
+    }
+    
+    if (mostrar) {
+      linhasVisiveis.push(linha);
+      visiveisCount++;
+    }
+  });
+  
+  // Ocultar todas as linhas
+  linhas.forEach(linha => linha.style.display = 'none');
+  
+  // Mostrar apenas as linhas da página atual
+  const inicio = (paginaAtual - 1) * itensPorPagina;
+  const fim = inicio + itensPorPagina;
+  
+  linhasVisiveis.slice(inicio, fim).forEach(linha => {
+    linha.style.display = '';
+  });
+  
+  // Atualizar contador
+  document.getElementById('totalFiltrado').textContent = visiveisCount;
+  
+  // Atualizar paginação
+  atualizarPaginacao(visiveisCount);
+}
+
+function atualizarPaginacao(totalItens) {
+  const totalPaginas = Math.ceil(totalItens / itensPorPagina);
+  const paginacao = document.getElementById('paginacao');
+  
+  paginacao.innerHTML = '';
+  
+  if (totalPaginas <= 1) return;
+  
+  // Botão anterior
+  const anterior = document.createElement('li');
+  anterior.className = `page-item ${paginaAtual === 1 ? 'disabled' : ''}`;
+  anterior.innerHTML = `<a class="page-link" href="#" onclick="mudarPagina(${paginaAtual - 1})">Anterior</a>`;
+  paginacao.appendChild(anterior);
+  
+  // Números das páginas
+  for (let i = 1; i <= totalPaginas; i++) {
+    if (i === 1 || i === totalPaginas || (i >= paginaAtual - 2 && i <= paginaAtual + 2)) {
+      const item = document.createElement('li');
+      item.className = `page-item ${i === paginaAtual ? 'active' : ''}`;
+      item.innerHTML = `<a class="page-link" href="#" onclick="mudarPagina(${i})">${i}</a>`;
+      paginacao.appendChild(item);
+    } else if (i === paginaAtual - 3 || i === paginaAtual + 3) {
+      const item = document.createElement('li');
+      item.className = 'page-item disabled';
+      item.innerHTML = '<span class="page-link">...</span>';
+      paginacao.appendChild(item);
+    }
+  }
+  
+  // Botão próximo
+  const proximo = document.createElement('li');
+  proximo.className = `page-item ${paginaAtual === totalPaginas ? 'disabled' : ''}`;
+  proximo.innerHTML = `<a class="page-link" href="#" onclick="mudarPagina(${paginaAtual + 1})">Próximo</a>`;
+  paginacao.appendChild(proximo);
+}
+
+function mudarPagina(novaPagina) {
+  paginaAtual = novaPagina;
+  filtrarTabela();
+}
+
+function limparFiltros() {
+  document.getElementById('busca').value = '';
+  document.getElementById('filtroStatus').value = '';
+  document.getElementById('filtroIdade').value = '';
+  paginaAtual = 1;
+  filtrarTabela();
+}
+
+function verDetalhes(id) {
+  const inscricao = inscricoes.find(i => i.id === id);
+  if (!inscricao) return;
+  
+  const conteudo = `
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <strong>Nome:</strong><br>
+        ${inscricao.nome_completo}
+      </div>
+      <div class="col-md-6 mb-3">
+        <strong>Email:</strong><br>
+        ${inscricao.email}
+      </div>
+      <div class="col-md-6 mb-3">
+        <strong>Telefone:</strong><br>
+        ${inscricao.telefone || 'Não informado'}
+      </div>
+      <div class="col-md-6 mb-3">
+        <strong>Idade:</strong><br>
+        ${inscricao.idade} anos
+      </div>
+      <div class="col-md-6 mb-3">
+        <strong>Cidade:</strong><br>
+        ${inscricao.cidade}
+      </div>
+      <div class="col-md-6 mb-3">
+        <strong>Escolaridade:</strong><br>
+        ${inscricao.escolaridade}
+      </div>
+      <div class="col-12 mb-3">
+        <strong>Experiência em Informática:</strong><br>
+        ${inscricao.experiencia_informatica || 'Não informado'}
+      </div>
+      <div class="col-12 mb-3">
+        <strong>Expectativas do Curso:</strong><br>
+        ${inscricao.expectativas || 'Não informado'}
+      </div>
+      <div class="col-md-6 mb-3">
+        <strong>Nível de Proficiência em Informática:</strong><br>
+        ${inscricao.nivel_proficiencia ? inscricao.nivel_proficiencia + '/10' : 'Não informado'}
+      </div>
+      <div class="col-md-6 mb-3">
+        <strong>Já fez curso de informática antes:</strong><br>
+        ${inscricao.curso_anterior ? (inscricao.curso_anterior === 'sim' ? 'Sim' : 'Não') : 'Não informado'}
+      </div>
+      <div class="col-md-6 mb-3">
+        <strong>Data de Inscrição:</strong><br>
+        ${inscricao.data_inscricao}
+      </div>
+      <div class="col-md-6 mb-3">
+        <strong>Status:</strong><br>
+        <span class="status-badge status-${inscricao.status}">${inscricao.status}</span>
+      </div>
+    </div>
+  `;
+  
+  document.getElementById('conteudoDetalhes').innerHTML = conteudo;
+  new bootstrap.Modal(document.getElementById('modalDetalhes')).show();
+}
+
+// Auto-refresh a cada 30 segundos
+setInterval(function() {
+  location.reload();
+}, 30000);
+
+// Função para confirmar exclusão de inscrição no admin
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.btn-excluir-admin').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      const inscricaoId = this.getAttribute('data-inscricao-id');
+      const nomeInscricao = this.getAttribute('data-nome');
+      
+      if (confirm(`⚠️ Tem certeza que deseja EXCLUIR a inscrição de "${nomeInscricao}"?\n\nEsta ação não pode ser desfeita e irá:\n• Remover todos os dados da inscrição\n• Deletar os arquivos enviados\n• Liberar uma vaga no sistema\n\nDeseja continuar?`)) {
+        // Mostrar indicador de carregamento
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        this.style.pointerEvents = 'none';
+        
+        // Redirecionar para a rota de exclusão
+        window.location.href = '/admin/deletar_inscricao/' + inscricaoId;
+      }
+    });
+  });
+});
+</script>
+{% endblock %} 

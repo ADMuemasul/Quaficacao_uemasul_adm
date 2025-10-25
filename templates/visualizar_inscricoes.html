@@ -1,0 +1,608 @@
+{% extends "base.html" %}
+
+{% block title %}Visualizar Inscrições - Qualificação de Jovens UEMASUL{% endblock %}
+
+{% block content %}
+<section class="admin-section py-5" style="margin-top: 80px;">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h2 class="mb-1">
+              <i class="fas fa-users me-2 text-primary"></i>Visualizar Inscrições
+            </h2>
+            <p class="text-muted mb-0">Visão detalhada de todas as inscrições com documentos</p>
+          </div>
+          <div>
+            <a href="{{ url_for('admin') }}" class="btn btn-outline-primary me-2">
+              <i class="fas fa-table me-2"></i>Admin Tabela
+            </a>
+            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+              <i class="fas fa-home me-2"></i>Início
+            </a>
+          </div>
+        </div>
+
+        <!-- Estatísticas -->
+        <div class="row mb-4">
+          <div class="col-md-3 mb-3">
+            <div class="card stat-card border-primary">
+              <div class="card-body text-center">
+                <i class="fas fa-clipboard-list fa-2x text-primary mb-2"></i>
+                <h3 class="mb-1">{{ total_inscricoes }}</h3>
+                <p class="text-muted mb-0">Total de Inscrições</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 mb-3">
+            <div class="card stat-card border-warning">
+              <div class="card-body text-center">
+                <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+                <h3 class="mb-1">{{ inscricoes_pendentes }}</h3>
+                <p class="text-muted mb-0">Pendentes</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 mb-3">
+            <div class="card stat-card border-success">
+              <div class="card-body text-center">
+                <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                <h3 class="mb-1">{{ inscricoes_aprovadas }}</h3>
+                <p class="text-muted mb-0">Aprovadas</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 mb-3">
+            <div class="card stat-card border-danger">
+              <div class="card-body text-center">
+                <i class="fas fa-times-circle fa-2x text-danger mb-2"></i>
+                <h3 class="mb-1">{{ inscricoes_rejeitadas }}</h3>
+                <p class="text-muted mb-0">Rejeitadas</p>
+              </div>
+            </div>
+          </div>
+          {% if inscricoes_excedentes > 0 %}
+          <div class="col-md-3 mb-3">
+            <div class="card stat-card border-info">
+              <div class="card-body text-center">
+                <i class="fas fa-user-plus fa-2x text-info mb-2"></i>
+                <h3 class="mb-1">{{ inscricoes_excedentes }}</h3>
+                <p class="text-muted mb-0">Excedentes</p>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Filtros -->
+        <div class="card mb-4">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label for="filtroNome" class="form-label">Buscar:</label>
+                <input type="text" class="form-control" id="filtroNome" placeholder="Nome ou email...">
+              </div>
+              <div class="col-md-2 mb-3">
+                <label for="filtroStatus" class="form-label">Status:</label>
+                <select class="form-select" id="filtroStatus">
+                  <option value="">Todos</option>
+                  <option value="pendente">Pendente</option>
+                  <option value="aprovado">Aprovado</option>
+                  <option value="rejeitado">Rejeitado</option>
+                  <option value="excedente">Excedente</option>
+                </select>
+              </div>
+              <div class="col-md-2 mb-3">
+                <label for="filtroDocumentos" class="form-label">Documentos:</label>
+                <select class="form-select" id="filtroDocumentos">
+                  <option value="">Todos</option>
+                  <option value="com-foto">Com Foto</option>
+                  <option value="com-pdf">Com PDF</option>
+                  <option value="com-ambos">Com Ambos</option>
+                  <option value="sem-documentos">Sem Documentos</option>
+                </select>
+              </div>
+              <div class="col-md-2 mb-3">
+                <label for="filtroIdade" class="form-label">Idade:</label>
+                <select class="form-select" id="filtroIdade">
+                  <option value="">Todas</option>
+                  <option value="14-18">14-18 anos</option>
+                  <option value="19-25">19-25 anos</option>
+                  <option value="26-35">26-35 anos</option>
+                </select>
+              </div>
+              <div class="col-md-2 mb-3">
+                <label for="ordenacao" class="form-label">Ordenar por:</label>
+                <select class="form-select" id="ordenacao">
+                  <option value="data-desc">Data (Mais recente)</option>
+                  <option value="data-asc">Data (Mais antiga)</option>
+                  <option value="nome-asc">Nome (A-Z)</option>
+                  <option value="nome-desc">Nome (Z-A)</option>
+                  <option value="idade-asc">Idade (Menor)</option>
+                  <option value="idade-desc">Idade (Maior)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grid de Inscrições -->
+        <div class="row" id="gridInscricoes">
+          {% for inscricao in inscricoes %}
+          <div class="col-lg-6 col-xl-4 mb-4 inscricao-card" 
+               data-status="{{ inscricao.status }}" 
+               data-idade="{{ inscricao.idade }}"
+               data-nome="{{ inscricao.nome_completo|lower }}"
+               data-email="{{ inscricao.email|lower }}"
+               data-tem-foto="{{ 'true' if inscricao.foto_path else 'false' }}"
+               data-tem-pdf="{{ 'true' if inscricao.documento_pdf_path else 'false' }}">
+            <div class="card inscricao-item h-100">
+              <!-- Header do Card -->
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                  <span class="badge bg-{{ 'warning' if inscricao.status == 'pendente' else 'success' if inscricao.status == 'aprovado' else 'info' if inscricao.status == 'excedente' else 'danger' }} me-2">
+                    {{ inscricao.status.title() }}
+                  </span>
+                  <small class="text-muted">ID: {{ inscricao.id }}</small>
+                </div>
+                <small class="text-muted">{{ inscricao.data_inscricao.strftime('%d/%m/%Y') if inscricao.data_inscricao else '-' }}</small>
+              </div>
+
+              <!-- Foto (se houver) -->
+              {% if inscricao.foto_path %}
+              <div class="card-img-container">
+                <img src="{{ url_for('uploaded_file', filename=inscricao.foto_path) }}" 
+                     class="card-img-top inscricao-foto" 
+                     alt="Foto de {{ inscricao.nome_completo }}"
+                     style="height: 200px; object-fit: cover;">
+                <div class="photo-overlay">
+                  <a href="{{ url_for('uploaded_file', filename=inscricao.foto_path) }}" 
+                     target="_blank" class="btn btn-light btn-sm">
+                    <i class="fas fa-search-plus"></i> Ver Completa
+                  </a>
+                </div>
+              </div>
+              {% endif %}
+
+              <!-- Dados da Inscrição -->
+              <div class="card-body">
+                <h5 class="card-title mb-3">
+                  <i class="fas fa-user me-2 text-primary"></i>{{ inscricao.nome_completo }}
+                </h5>
+                
+                <div class="inscricao-info">
+                  <div class="info-item mb-2">
+                    <i class="fas fa-envelope text-muted me-2"></i>
+                    <strong>Email:</strong> {{ inscricao.email }}
+                  </div>
+                  
+                  {% if inscricao.telefone %}
+                  <div class="info-item mb-2">
+                    <i class="fas fa-phone text-muted me-2"></i>
+                    <strong>Telefone:</strong> {{ inscricao.telefone }}
+                  </div>
+                  {% endif %}
+                  
+                  <div class="info-item mb-2">
+                    <i class="fas fa-birthday-cake text-muted me-2"></i>
+                    <strong>Idade:</strong> {{ inscricao.idade }} anos
+                  </div>
+                  
+                  <div class="info-item mb-2">
+                    <i class="fas fa-map-marker-alt text-muted me-2"></i>
+                    <strong>Cidade:</strong> {{ inscricao.cidade }}
+                  </div>
+                  
+                  <div class="info-item mb-3">
+                    <i class="fas fa-graduation-cap text-muted me-2"></i>
+                    <strong>Escolaridade:</strong> {{ inscricao.escolaridade }}
+                  </div>
+                  
+                  {% if inscricao.experiencia_informatica %}
+                  <div class="info-section mb-3">
+                    <strong><i class="fas fa-laptop text-muted me-2"></i>Experiência:</strong>
+                    <p class="text-muted small mt-1 mb-0">{{ inscricao.experiencia_informatica }}</p>
+                  </div>
+                  {% endif %}
+                  
+                  {% if inscricao.expectativas %}
+                  <div class="info-section mb-3">
+                    <strong><i class="fas fa-bullseye text-muted me-2"></i>Expectativas:</strong>
+                    <p class="text-muted small mt-1 mb-0">{{ inscricao.expectativas }}</p>
+                  </div>
+                  {% endif %}
+                  
+                  <!-- Novas informações -->
+                  <div class="row">
+                    {% if inscricao.nivel_proficiencia %}
+                    <div class="col-md-6 mb-2">
+                      <div class="info-item">
+                        <i class="fas fa-chart-line text-muted me-2"></i>
+                        <strong>Nível de Proficiência:</strong> 
+                        <span class="badge bg-primary">{{ inscricao.nivel_proficiencia }}/10</span>
+                      </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if inscricao.curso_anterior %}
+                    <div class="col-md-6 mb-2">
+                      <div class="info-item">
+                        <i class="fas fa-{{ 'check' if inscricao.curso_anterior == 'sim' else 'times' }} text-muted me-2"></i>
+                        <strong>Curso Anterior:</strong> 
+                        <span class="badge bg-{{ 'success' if inscricao.curso_anterior == 'sim' else 'secondary' }}">
+                          {{ 'Sim' if inscricao.curso_anterior == 'sim' else 'Não' }}
+                        </span>
+                      </div>
+                    </div>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Footer com Documentos e Ações -->
+              <div class="card-footer">
+                <div class="d-flex justify-content-between align-items-center">
+                  <!-- Documentos -->
+                  <div class="documentos">
+                    {% if inscricao.foto_path or inscricao.documento_pdf_path %}
+                      <small class="text-muted">Documentos:</small>
+                      <div class="btn-group ms-2" role="group">
+                        {% if inscricao.foto_path %}
+                        <a href="{{ url_for('uploaded_file', filename=inscricao.foto_path) }}" 
+                           target="_blank" class="btn btn-sm btn-outline-info" title="Ver Foto">
+                          <i class="fas fa-image"></i>
+                        </a>
+                        {% endif %}
+                        {% if inscricao.documento_pdf_path %}
+                        <a href="{{ url_for('uploaded_file', filename=inscricao.documento_pdf_path) }}" 
+                           target="_blank" class="btn btn-sm btn-outline-danger" title="Ver PDF">
+                          <i class="fas fa-file-pdf"></i>
+                        </a>
+                        {% endif %}
+                      </div>
+                    {% else %}
+                      <small class="text-muted">
+                        <i class="fas fa-minus-circle me-1"></i>Sem documentos
+                      </small>
+                    {% endif %}
+                  </div>
+
+                  <!-- Ações -->
+                  <div class="acoes">
+                    <div class="btn-group" role="group">
+                      <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                              data-bs-toggle="dropdown" title="Alterar Status">
+                        <i class="fas fa-cog"></i>
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('atualizar_status', inscricao_id=inscricao.id, status='pendente') }}">
+                          <i class="fas fa-clock text-warning me-2"></i>Pendente
+                        </a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('atualizar_status', inscricao_id=inscricao.id, status='aprovado') }}">
+                          <i class="fas fa-check text-success me-2"></i>Aprovar
+                        </a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('atualizar_status', inscricao_id=inscricao.id, status='rejeitado') }}">
+                          <i class="fas fa-times text-danger me-2"></i>Rejeitar
+                        </a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('atualizar_status', inscricao_id=inscricao.id, status='excedente') }}">
+                          <i class="fas fa-user-plus text-info me-2"></i>Excedente
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" 
+                               onclick="confirmarExclusao('{{ inscricao.id }}', '{{ inscricao.nome_completo }}'); return false;">
+                          <i class="fas fa-trash me-2"></i>Excluir Inscrição
+                        </a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Mensagem quando não há resultados -->
+        <div id="semResultados" class="text-center py-5" style="display: none;">
+          <div class="mb-3">
+            <i class="fas fa-search fa-3x text-muted"></i>
+          </div>
+          <h4 class="text-muted">Nenhuma inscrição encontrada</h4>
+          <p class="text-muted">Tente ajustar os filtros de busca</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<style>
+/* Estilos personalizados */
+.admin-section {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  padding-top: 2rem !important;
+  position: relative;
+  z-index: 1;
+}
+
+.stat-card {
+  transition: transform 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+}
+
+.inscricao-item {
+  transition: all 0.3s ease;
+  border: 1px solid #dee2e6;
+}
+
+.inscricao-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.card-img-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.inscricao-foto {
+  transition: transform 0.3s ease;
+}
+
+.card-img-container:hover .inscricao-foto {
+  transform: scale(1.05);
+}
+
+.photo-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card-img-container:hover .photo-overlay {
+  opacity: 1;
+}
+
+.info-item {
+  font-size: 0.9rem;
+}
+
+.info-section {
+  border-top: 1px solid #eee;
+  padding-top: 0.5rem;
+}
+
+.documentos {
+  flex-grow: 1;
+}
+
+.status-badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .admin-section {
+    margin-top: 70px !important;
+    padding-top: 1rem !important;
+  }
+  
+  .container-fluid {
+    padding: 0 15px;
+  }
+  
+  .inscricao-item {
+    margin-bottom: 1rem;
+  }
+  
+  /* Ajuste do header no mobile */
+  .d-flex.justify-content-between {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .d-flex.justify-content-between > div:last-child {
+    align-self: stretch;
+  }
+  
+  .d-flex.justify-content-between .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Melhorias de layout */
+.card {
+  border: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* Ajustes para navbar fixa */
+@media (min-width: 992px) {
+  .admin-section {
+    margin-top: 85px !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .admin-section {
+    margin-top: 75px !important;
+  }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const filtroNome = document.getElementById('filtroNome');
+  const filtroStatus = document.getElementById('filtroStatus');
+  const filtroDocumentos = document.getElementById('filtroDocumentos');
+  const filtroIdade = document.getElementById('filtroIdade');
+  const ordenacao = document.getElementById('ordenacao');
+  
+  // Event listeners para filtros
+  filtroNome.addEventListener('input', aplicarFiltros);
+  filtroStatus.addEventListener('change', aplicarFiltros);
+  filtroDocumentos.addEventListener('change', aplicarFiltros);
+  filtroIdade.addEventListener('change', aplicarFiltros);
+  ordenacao.addEventListener('change', aplicarFiltros);
+  
+  function aplicarFiltros() {
+    const nome = filtroNome.value.toLowerCase();
+    const status = filtroStatus.value;
+    const documentos = filtroDocumentos.value;
+    const idade = filtroIdade.value;
+    const ordem = ordenacao.value;
+    
+    const cards = Array.from(document.querySelectorAll('.inscricao-card'));
+    let cardsVisiveis = [];
+    
+    // Filtrar cards
+    cards.forEach(card => {
+      let mostrar = true;
+      
+      // Filtro por nome
+      if (nome && !card.dataset.nome.includes(nome) && !card.dataset.email.includes(nome)) {
+        mostrar = false;
+      }
+      
+      // Filtro por status
+      if (status && card.dataset.status !== status) {
+        mostrar = false;
+      }
+      
+      // Filtro por documentos
+      if (documentos) {
+        const temFoto = card.dataset.temFoto === 'true';
+        const temPdf = card.dataset.temPdf === 'true';
+        
+        switch(documentos) {
+          case 'com-foto':
+            if (!temFoto) mostrar = false;
+            break;
+          case 'com-pdf':
+            if (!temPdf) mostrar = false;
+            break;
+          case 'com-ambos':
+            if (!temFoto || !temPdf) mostrar = false;
+            break;
+          case 'sem-documentos':
+            if (temFoto || temPdf) mostrar = false;
+            break;
+        }
+      }
+      
+      // Filtro por idade
+      if (idade) {
+        const idadeNum = parseInt(card.dataset.idade);
+        switch(idade) {
+          case '14-18':
+            if (idadeNum < 14 || idadeNum > 18) mostrar = false;
+            break;
+          case '19-25':
+            if (idadeNum < 19 || idadeNum > 25) mostrar = false;
+            break;
+          case '26-35':
+            if (idadeNum < 26 || idadeNum > 35) mostrar = false;
+            break;
+        }
+      }
+      
+      if (mostrar) {
+        card.style.display = 'block';
+        cardsVisiveis.push(card);
+      } else {
+        card.style.display = 'none';
+      }
+    });
+    
+    // Ordenar cards visíveis
+    if (cardsVisiveis.length > 0) {
+      cardsVisiveis.sort((a, b) => {
+        switch(ordem) {
+          case 'nome-asc':
+            return a.dataset.nome.localeCompare(b.dataset.nome);
+          case 'nome-desc':
+            return b.dataset.nome.localeCompare(a.dataset.nome);
+          case 'idade-asc':
+            return parseInt(a.dataset.idade) - parseInt(b.dataset.idade);
+          case 'idade-desc':
+            return parseInt(b.dataset.idade) - parseInt(a.dataset.idade);
+          case 'data-asc':
+          case 'data-desc':
+          default:
+            return 0; // Manter ordem original
+        }
+      });
+      
+      // Reorganizar no DOM
+      const container = document.getElementById('gridInscricoes');
+      cardsVisiveis.forEach(card => {
+        container.appendChild(card);
+      });
+    }
+    
+    // Mostrar/esconder mensagem de sem resultados
+    const semResultados = document.getElementById('semResultados');
+    if (cardsVisiveis.length === 0) {
+      semResultados.style.display = 'block';
+    } else {
+      semResultados.style.display = 'none';
+    }
+  }
+  
+  // Animação de entrada dos cards
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  });
+  
+  document.querySelectorAll('.inscricao-card').forEach(card => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(20px)';
+    card.style.transition = 'all 0.5s ease';
+    observer.observe(card);
+  });
+});
+
+// Função para confirmar exclusão de inscrição
+function confirmarExclusao(inscricaoId, nomeInscricao) {
+  if (confirm(`⚠️ Tem certeza que deseja EXCLUIR a inscrição de "${nomeInscricao}"?\n\nEsta ação não pode ser desfeita e irá:\n• Remover todos os dados da inscrição\n• Deletar os arquivos enviados\n• Liberar uma vaga no sistema\n\nDeseja continuar?`)) {
+    // Mostrar indicador de carregamento
+    const btnExcluir = event.target.closest('a');
+    if (btnExcluir) {
+      btnExcluir.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Excluindo...';
+      btnExcluir.style.pointerEvents = 'none';
+    }
+    
+    // Redirecionar para a rota de exclusão
+    window.location.href = `/admin/deletar_inscricao/${inscricaoId}`;
+  }
+}
+</script>
+{% endblock %} 

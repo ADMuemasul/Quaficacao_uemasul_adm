@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Página não encontrada - UEMASUL{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="error-page">
+                <h1 class="display-1 text-primary">404</h1>
+                <h2 class="mb-4">Página não encontrada</h2>
+                <p class="lead mb-4">
+                    A página que você está procurando não existe ou foi movida.
+                </p>
+                <div class="error-actions">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary me-3">
+                        <i class="fas fa-home me-2"></i>Voltar ao Início
+                    </a>
+                    <a href="{{ url_for('inscricao') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-user-plus me-2"></i>Fazer Inscrição
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.error-page {
+    padding: 60px 0;
+}
+
+.error-page h1 {
+    font-size: 8rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.error-page h2 {
+    color: #6c757d;
+    font-weight: 300;
+}
+
+.error-actions {
+    margin-top: 40px;
+}
+
+@media (max-width: 768px) {
+    .error-page h1 {
+        font-size: 4rem;
+    }
+    
+    .error-actions .btn {
+        display: block;
+        margin: 10px auto;
+        width: 200px;
+    }
+}
+</style>
+{% endblock %} 

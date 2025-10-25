@@ -1,0 +1,760 @@
+{% extends "base.html" %}
+
+{% block title %}Inscrição - Qualificação de Jovens UEMASUL{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-inscricao">
+  <div class="hero-overlay"></div>
+  <div class="container">
+    <div class="row justify-content-center align-items-center min-vh-100">
+      <div class="col-lg-6 col-md-8 text-center text-white">
+        <div class="hero-content">
+          <i class="fas fa-graduation-cap hero-icon mb-4"></i>
+          <h1 class="hero-title">Inscrição no Curso</h1>
+          <p class="hero-subtitle">Qualificação de Jovens para o Mercado de Trabalho</p>
+          
+          <!-- Status das Vagas -->
+          {% if inscricoes_abertas %}
+            <div class="status-badge success">
+              <i class="fas fa-check-circle me-2"></i>
+              <strong>Inscrições Abertas</strong>
+              <small class="d-block">{{ vagas_restantes }} vaga{{ 's' if vagas_restantes != 1 else '' }} disponível{{ 'is' if vagas_restantes != 1 else '' }}</small>
+            </div>
+          {% elif not inscricoes_iniciadas %}
+            <div class="status-badge warning">
+              <i class="fas fa-clock me-2"></i>
+              <strong>Inscrições em Breve</strong>
+              <small class="d-block">Começam em {{ data_inicio_inscricoes }}</small>
+            </div>
+          {% else %}
+            <div class="status-badge danger">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              <strong>Inscrições Encerradas</strong>
+              <small class="d-block">Limite de 25 vagas atingido</small>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Cronômetro Section (apenas quando inscrições não iniciaram) -->
+{% if not inscricoes_iniciadas %}
+<section class="cronometro-section py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 text-center">
+        <h2 class="cronometro-titulo mb-4">
+          <i class="fas fa-hourglass-half me-2"></i>
+          Contagem Regressiva para o Início das Inscrições
+        </h2>
+        
+        <div id="cronometro" class="cronometro-container">
+          <div class="cronometro-item">
+            <span id="dias" class="cronometro-numero">00</span>
+            <span class="cronometro-label">Dias</span>
+          </div>
+          <div class="cronometro-separador">:</div>
+          <div class="cronometro-item">
+            <span id="horas" class="cronometro-numero">00</span>
+            <span class="cronometro-label">Horas</span>
+          </div>
+          <div class="cronometro-separador">:</div>
+          <div class="cronometro-item">
+            <span id="minutos" class="cronometro-numero">00</span>
+            <span class="cronometro-label">Min</span>
+          </div>
+          <div class="cronometro-separador">:</div>
+          <div class="cronometro-item">
+            <span id="segundos" class="cronometro-numero">00</span>
+            <span class="cronometro-label">Seg</span>
+          </div>
+        </div>
+        
+        <div class="cronometro-info mt-4">
+          <p class="mb-0"><strong>Data de Início:</strong> {{ data_inicio_inscricoes }}</p>
+          <p class="text-muted mb-0">Fique atento! As inscrições têm vagas limitadas.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Script do Cronômetro -->
+<script>
+// Cronômetro para contagem regressiva
+const tempoRestante = '{{ tempo_restante }}';
+const dataInicio = new Date(tempoRestante);
+
+function atualizarCronometro() {
+  const agora = new Date();
+  const diferenca = dataInicio - agora;
+  
+  if (diferenca <= 0) {
+    // Recarregar a página quando o tempo acabar
+    location.reload();
+    return;
+  }
+  
+  const dias = Math.floor(diferenca / (1000 * 60 * 60 * 24));
+  const horas = Math.floor((diferenca % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutos = Math.floor((diferenca % (1000 * 60 * 60)) / (1000 * 60));
+  const segundos = Math.floor((diferenca % (1000 * 60)) / 1000);
+  
+  // Atualizar os elementos do cronômetro
+  const diasEl = document.getElementById('dias');
+  const horasEl = document.getElementById('horas');
+  const minutosEl = document.getElementById('minutos');
+  const segundosEl = document.getElementById('segundos');
+  
+  if (diasEl) diasEl.textContent = dias.toString().padStart(2, '0');
+  if (horasEl) horasEl.textContent = horas.toString().padStart(2, '0');
+  if (minutosEl) minutosEl.textContent = minutos.toString().padStart(2, '0');
+  if (segundosEl) segundosEl.textContent = segundos.toString().padStart(2, '0');
+}
+
+// Inicializar cronômetro quando a página carregar
+document.addEventListener('DOMContentLoaded', function() {
+  const cronometroEl = document.getElementById('cronometro');
+  if (cronometroEl) {
+    atualizarCronometro();
+    setInterval(atualizarCronometro, 1000);
+  }
+});
+</script>
+{% endif %}
+
+<!-- Formulário Section -->
+{% if inscricoes_abertas %}
+<section class="form-section">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <!-- Mensagens Flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'info' }} alert-dismissible fade show mb-4" role="alert">
+                <i class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' if category == 'success' else 'info-circle' }} me-2"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" title="Fechar mensagem" aria-label="Fechar mensagem"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <div class="form-card">
+          <div class="form-header">
+            <h3 class="form-title">
+              <i class="fas fa-user-edit me-3"></i>
+              Dados para Inscrição
+            </h3>
+            <p class="form-subtitle">Preencha todas as informações com cuidado</p>
+          </div>
+
+          <form method="POST" enctype="multipart/form-data" class="elegant-form" novalidate>
+            {{ form.hidden_tag() }}
+            
+            <!-- Dados Pessoais -->
+            <div class="form-section-header">
+              <i class="fas fa-user text-primary"></i>
+              <span>Dados Pessoais</span>
+            </div>
+            
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="{{ form.nome_completo.id }}" class="form-label">
+                  <i class="fas fa-user-circle"></i> {{ form.nome_completo.label.text }}
+                </label>
+                {{ form.nome_completo(class="form-input", required=true, placeholder="Digite seu nome completo") }}
+                {% if form.nome_completo.errors %}
+                  <div class="form-error">{{ form.nome_completo.errors[0] }}</div>
+                {% endif %}
+              </div>
+
+              <div class="form-group">
+                <label for="{{ form.email.id }}" class="form-label">
+                  <i class="fas fa-envelope"></i> {{ form.email.label.text }}
+                </label>
+                {{ form.email(class="form-input", required=true, placeholder="seu@email.com") }}
+                {% if form.email.errors %}
+                  <div class="form-error">{{ form.email.errors[0] }}</div>
+                {% endif %}
+              </div>
+
+              <div class="form-group">
+                <label for="{{ form.telefone.id }}" class="form-label">
+                  <i class="fas fa-phone"></i> {{ form.telefone.label.text }}
+                </label>
+                {{ form.telefone(class="form-input", required=true, placeholder="(99) 99999-9999") }}
+                {% if form.telefone.errors %}
+                  <div class="form-error">{{ form.telefone.errors[0] }}</div>
+                {% endif %}
+              </div>
+
+              <div class="form-group">
+                <label for="{{ form.idade.id }}" class="form-label">
+                  <i class="fas fa-calendar-alt"></i> {{ form.idade.label.text }}
+                </label>
+                {{ form.idade(class="form-input", required=true, min="14", max="35", placeholder="Ex: 20") }}
+                {% if form.idade.errors %}
+                  <div class="form-error">{{ form.idade.errors[0] }}</div>
+                {% endif %}
+                <small class="form-help">Entre 14 e 35 anos</small>
+              </div>
+
+              <div class="form-group">
+                <label for="{{ form.cidade.id }}" class="form-label">
+                  <i class="fas fa-map-marker-alt"></i> {{ form.cidade.label.text }}
+                </label>
+                {{ form.cidade(class="form-input", required=true, placeholder="Sua cidade") }}
+                {% if form.cidade.errors %}
+                  <div class="form-error">{{ form.cidade.errors[0] }}</div>
+                {% endif %}
+              </div>
+
+              <div class="form-group">
+                <label for="{{ form.escolaridade.id }}" class="form-label">
+                  <i class="fas fa-graduation-cap"></i> {{ form.escolaridade.label.text }}
+                </label>
+                {{ form.escolaridade(class="form-select", required=true) }}
+                {% if form.escolaridade.errors %}
+                  <div class="form-error">{{ form.escolaridade.errors[0] }}</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Experiência -->
+            <div class="form-section-header mt-5">
+              <i class="fas fa-laptop-code text-success"></i>
+              <span>Experiência em Informática</span>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group full-width">
+                <label for="{{ form.experiencia_informatica.id }}" class="form-label">
+                  <i class="fas fa-keyboard"></i> {{ form.experiencia_informatica.label.text }}
+                </label>
+                {{ form.experiencia_informatica(class="form-textarea", rows="4", required=true, placeholder="Conte sobre sua experiência com computadores, softwares, internet...") }}
+                {% if form.experiencia_informatica.errors %}
+                  <div class="form-error">{{ form.experiencia_informatica.errors[0] }}</div>
+                {% endif %}
+                <small class="form-help">Mínimo 3 caracteres</small>
+              </div>
+
+              <div class="form-group full-width">
+                <label for="{{ form.expectativas.id }}" class="form-label">
+                  <i class="fas fa-star"></i> {{ form.expectativas.label.text }}
+                </label>
+                {{ form.expectativas(class="form-textarea", rows="4", required=true, placeholder="O que você espera aprender neste curso?") }}
+                {% if form.expectativas.errors %}
+                  <div class="form-error">{{ form.expectativas.errors[0] }}</div>
+                {% endif %}
+                <small class="form-help">Mínimo 3 caracteres</small>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group form-group-half">
+                  <label for="{{ form.nivel_proficiencia.id }}" class="form-label">
+                    <i class="fas fa-chart-line"></i> {{ form.nivel_proficiencia.label.text }}
+                  </label>
+                  {{ form.nivel_proficiencia(class="form-select", required=true) }}
+                  {% if form.nivel_proficiencia.errors %}
+                    <div class="form-error">{{ form.nivel_proficiencia.errors[0] }}</div>
+                  {% endif %}
+                  <small class="form-help">Seja honesto sobre seu nível atual</small>
+                </div>
+
+                <div class="form-group form-group-half">
+                  <label for="{{ form.curso_anterior.id }}" class="form-label">
+                    <i class="fas fa-certificate"></i> {{ form.curso_anterior.label.text }}
+                  </label>
+                  {{ form.curso_anterior(class="form-select", required=true) }}
+                  {% if form.curso_anterior.errors %}
+                    <div class="form-error">{{ form.curso_anterior.errors[0] }}</div>
+                  {% endif %}
+                  <small class="form-help">Qualquer curso de informática</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Documentos -->
+            <div class="form-section-header mt-5">
+              <i class="fas fa-file-upload text-warning"></i>
+              <span>Documento de Confirmação de Matrícula</span>
+            </div>
+
+            <div class="upload-notice">
+              <i class="fas fa-info-circle"></i>
+              <strong>Importante:</strong> Envie pelo menos UM documento (foto OU PDF) para confirmar sua matrícula no ensino médio.
+              <br><small>Tamanho máximo: 5MB por arquivo</small>
+            </div>
+
+            <div class="upload-section">
+              <label class="upload-label">
+                <i class="fas fa-file-upload"></i> Documento de Confirmação
+              </label>
+              <div class="upload-area" id="upload-documento-area">
+                <div class="upload-content">
+                  <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                  <p class="upload-text">Clique para selecionar seu documento</p>
+                  <span class="upload-formats">JPG, JPEG, PNG, PDF - Máx. 5MB</span>
+                </div>
+                {{ form.foto(class="upload-input", accept=".jpg,.jpeg,.png,.pdf", id="file-documento") }}
+              </div>
+              <div class="file-preview" id="documento-preview" style="display: none;">
+                <div class="preview-content">
+                  <i class="fas fa-file preview-icon"></i>
+                  <div class="preview-info">
+                    <div class="preview-name"></div>
+                    <div class="preview-size"></div>
+                  </div>
+                  <button type="button" class="preview-remove" onclick="removeFile('documento')" title="Remover documento" aria-label="Remover documento">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
+              {% if form.foto.errors %}
+                <div class="form-error">{{ form.foto.errors[0] }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Info do Curso -->
+            <div class="course-info">
+              <h4><i class="fas fa-info-circle"></i> Informações do Curso</h4>
+              <div class="info-grid">
+                <div class="info-item">
+                  <i class="fas fa-clock"></i>
+                  <span>30 horas de duração</span>
+                </div>
+                <div class="info-item">
+                  <i class="fas fa-certificate"></i>
+                  <span>Certificado incluso</span>
+                </div>
+                <div class="info-item">
+                  <i class="fas fa-laptop"></i>
+                  <span>Word, Excel, PowerPoint</span>
+                </div>
+                <div class="info-item">
+                  <i class="fas fa-chart-bar"></i>
+                  <span>Power BI</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Botões -->
+            <div class="form-actions">
+              <a href="{{ url_for('index') }}" class="btn-secondary">
+                <i class="fas fa-arrow-left"></i> Voltar
+              </a>
+              <button type="submit" class="btn-primary">
+                <i class="fas fa-paper-plane"></i> Enviar Inscrição
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% else %}
+<!-- Inscrições Fechadas -->
+<section class="closed-section">
+  <div class="container">
+    <div class="row justify-content-center align-items-center min-vh-50">
+      <div class="col-lg-8 text-center">
+        <div class="closed-card">
+          <div class="closed-icon-container">
+            <i class="fas fa-calendar-times closed-icon"></i>
+          </div>
+          <h2 class="closed-title">Inscrições Encerradas</h2>
+          <p class="closed-text">
+            As inscrições para esta edição do projeto <strong>Qualifica Jovens</strong> foram encerradas.
+          </p>
+          <p class="closed-subtitle">
+            Aguarde a próxima edição do projeto para novas oportunidades de qualificação profissional!
+          </p>
+          
+          <div class="closed-info">
+            <div class="info-item">
+              <i class="fas fa-graduation-cap"></i>
+              <span>Curso de Informática</span>
+            </div>
+            <div class="info-item">
+              <i class="fas fa-certificate"></i>
+              <span>Certificado UEMASUL</span>
+            </div>
+            <div class="info-item">
+              <i class="fas fa-users"></i>
+              <span>Vagas Limitadas</span>
+            </div>
+          </div>
+          
+          <div class="closed-actions">
+            <a href="{{ url_for('index') }}" class="btn-primary">
+              <i class="fas fa-home"></i> Voltar ao Início
+            </a>
+            <a href="{{ url_for('index') }}#resultado" class="btn-secondary">
+              <i class="fas fa-images"></i> Ver Galeria de Fotos
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Máscara para telefone
+  const telefoneInput = document.querySelector('input[name="telefone"]');
+  if (telefoneInput) {
+    telefoneInput.addEventListener('input', function(e) {
+      let value = e.target.value.replace(/\D/g, '');
+      value = value.replace(/(\d{2})(\d)/, '($1) $2');
+      value = value.replace(/(\d{5})(\d)/, '$1-$2');
+      e.target.value = value;
+    });
+  }
+  
+  // Função para formatar tamanho do arquivo
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+  
+  // Função para mostrar arquivo selecionado
+  function showSelectedFile(input) {
+    const file = input.files[0];
+    const uploadArea = document.getElementById('upload-documento-area');
+    const filePreview = document.getElementById('documento-preview');
+    
+    if (file) {
+      // Verificar tamanho do arquivo (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Arquivo muito grande! Tamanho máximo: 5MB');
+        input.value = '';
+        return;
+      }
+      
+      // Verificar tipo de arquivo
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+      if (!allowedTypes.includes(file.type)) {
+        alert('Tipo de arquivo não permitido! Use JPG, PNG ou PDF.');
+        input.value = '';
+        return;
+      }
+      
+      // Mostrar informações do arquivo
+      const previewName = filePreview.querySelector('.preview-name');
+      const previewSize = filePreview.querySelector('.preview-size');
+      const previewIcon = filePreview.querySelector('.preview-icon');
+      
+      previewName.textContent = file.name;
+      previewSize.textContent = formatFileSize(file.size);
+      
+      // Definir ícone baseado no tipo de arquivo
+      if (file.type.startsWith('image/')) {
+        previewIcon.className = 'fas fa-image preview-icon';
+      } else if (file.type === 'application/pdf') {
+        previewIcon.className = 'fas fa-file-pdf preview-icon';
+      }
+      
+      // Esconder área de upload e mostrar preview
+      uploadArea.style.display = 'none';
+      filePreview.style.display = 'block';
+    }
+  }
+  
+  // Configurar eventos para documento unificado
+  const documentoInput = document.getElementById('file-documento');
+  const documentoArea = document.getElementById('upload-documento-area');
+  
+  if (documentoInput && documentoArea) {
+    documentoInput.addEventListener('change', function() {
+      showSelectedFile(this);
+    });
+  }
+  
+  // Função global para remover arquivo
+  window.removeFile = function(type) {
+    const input = document.getElementById('file-documento');
+    const uploadArea = document.getElementById('upload-documento-area');
+    const filePreview = document.getElementById('documento-preview');
+    
+    if (input && uploadArea && filePreview) {
+      // Limpar input
+      input.value = '';
+      
+      // Mostrar área de upload e esconder preview
+      uploadArea.style.display = 'block';
+      filePreview.style.display = 'none';
+    }
+  };
+  
+  // Validação do formulário
+  const form = document.querySelector('.elegant-form');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      // Verificar se pelo menos um arquivo foi selecionado
+      const documentoInput = document.getElementById('file-documento');
+      
+      const temDocumento = documentoInput && documentoInput.files && documentoInput.files.length > 0;
+      
+      if (!temDocumento) {
+        e.preventDefault();
+        alert('⚠️ É obrigatório enviar pelo menos UM documento (foto OU PDF) para confirmar sua matrícula.');
+        
+        // Destacar seção de upload
+        const uploadSection = document.querySelector('.upload-section');
+        if (uploadSection) {
+          uploadSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          uploadSection.style.border = '2px solid #ffc107';
+          uploadSection.style.borderRadius = '16px';
+          uploadSection.style.padding = '1rem';
+          uploadSection.style.background = 'rgba(255, 193, 7, 0.1)';
+          
+          setTimeout(() => {
+            uploadSection.style.border = '';
+            uploadSection.style.borderRadius = '';
+            uploadSection.style.padding = '';
+            uploadSection.style.background = '';
+          }, 5000);
+        }
+        
+        return false;
+      }
+      
+      return true;
+    });
+  }
+  
+  console.log('✅ Nova página de inscrição carregada com sucesso!');
+  
+  // Animação suave de entrada
+  const formCard = document.querySelector('.form-card');
+  if (formCard) {
+    formCard.style.opacity = '0';
+    formCard.style.transform = 'translateY(30px)';
+    
+    setTimeout(() => {
+      formCard.style.transition = 'all 0.6s ease';
+      formCard.style.opacity = '1';
+      formCard.style.transform = 'translateY(0)';
+    }, 200);
+  }
+  
+  // Animação dos campos quando focados
+  const inputs = document.querySelectorAll('.form-input, .form-select, .form-textarea');
+  inputs.forEach(input => {
+    input.addEventListener('focus', function() {
+      this.parentElement.style.transform = 'scale(1.02)';
+    });
+    
+    input.addEventListener('blur', function() {
+      this.parentElement.style.transform = 'scale(1)';
+    });
+  });
+
+
+});
+</script>
+
+<style>
+/* Estilos para a seção de inscrições encerradas */
+.closed-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 4rem 0;
+  display: flex;
+  align-items: center;
+}
+
+.closed-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  padding: 3rem 2rem;
+  margin: 2rem 0;
+  animation: slideInUp 0.8s ease-out;
+}
+
+.closed-icon-container {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 2rem;
+  animation: pulse 2s infinite;
+}
+
+.closed-icon {
+  font-size: 2.5rem;
+  color: white;
+}
+
+.closed-title {
+  color: #2c3e50;
+  font-weight: 700;
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.closed-text {
+  color: #34495e;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.closed-subtitle {
+  color: #7f8c8d;
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.closed-info {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+}
+
+.closed-info .info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #f8f9fa;
+  padding: 0.75rem 1.5rem;
+  border-radius: 25px;
+  color: #495057;
+  font-weight: 500;
+}
+
+.closed-info .info-item i {
+  color: #667eea;
+  font-size: 1.2rem;
+}
+
+.closed-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+
+.btn-primary, .btn-secondary {
+  padding: 1rem 2rem;
+  border-radius: 10px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+  color: white;
+  text-decoration: none;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: #667eea;
+  border: 2px solid #667eea;
+}
+
+.btn-secondary:hover {
+  background: #667eea;
+  color: white;
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+/* Animações */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .closed-card {
+    margin: 1rem;
+    padding: 2rem 1.5rem;
+  }
+  
+  .closed-title {
+    font-size: 2rem;
+  }
+  
+  .closed-text {
+    font-size: 1.1rem;
+  }
+  
+  .closed-subtitle {
+    font-size: 1rem;
+  }
+  
+  .closed-info {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .closed-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .btn-primary, .btn-secondary {
+    width: 100%;
+    max-width: 300px;
+    justify-content: center;
+  }
+}
+</style>
+{% endblock %} 
